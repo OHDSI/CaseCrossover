@@ -21,7 +21,7 @@
 #'
 #' @return
 #' Returns an object of type \code{caseCrossoverData}, containing information on the cases, the nesting cohort,
-#' and optionally visits. Information about multiple outcomes can be captured at once for efficiency
+#' exposures, and optionally visits. Information about multiple outcomes can be captured at once for efficiency
 #' reasons. The generic \code{summary()} function has been implemented for this object.
 #'
 #' @param connectionDetails                   An R object of type \code{ConnectionDetails} created
@@ -97,7 +97,7 @@ getDbCaseCrossoverData <- function(connectionDetails,
                                    nestingCohortTable = "cohort",
                                    nestingCohortId = NULL,
                                    useObservationEndAsNestingEndDate = TRUE,
-                                   getVisits = TRUE,
+                                   getVisits = FALSE,
                                    exposureDatabaseSchema = cdmDatabaseSchema,
                                    exposureTable = "drug_era",
                                    exposureIds = c(),
@@ -134,7 +134,7 @@ getDbCaseCrossoverData <- function(connectionDetails,
 #' @description
 #' \code{saveCaseCrossoverData} saves an object of type caseCrossoverData to folder.
 #'
-#' @param caseCrossover   An object of type \code{caseCrossover} as generated using \code{\link{getDbCaseCrossoverData}}.
+#' @param caseCrossover   An object of type \code{caseCrossoverData} as generated using \code{\link{getDbCaseCrossoverData}}.
 #' @param folder     The name of the folder where the data will be written. The folder should not yet
 #'                   exist.
 #'
@@ -142,13 +142,13 @@ getDbCaseCrossoverData <- function(connectionDetails,
 #' The data will be written to a set of files in the specified folder.
 #'
 #' @export
-saveCaseCrossoverData <- function(caseCrossover, folder) {
-  if (missing(caseCrossover))
-    stop("Must specify caseCrossover")
+saveCaseCrossoverData <- function(caseCrossoverData, folder) {
+  if (missing(caseCrossoverData))
+    stop("Must specify caseCrossoverData")
   if (missing(folder))
     stop("Must specify folder")
-  if (class(caseCrossover) != "caseCrossover")
-    stop("Data not of class caseCrossover")
+  if (class(caseCrossoverData) != "caseCrossoverData")
+    stop("Data not of class caseCrossoverData")
 
   nestingCohorts <- caseCrossoverData$nestingCohorts
   if (caseCrossoverData$metaData$hasVisits) {
@@ -222,12 +222,13 @@ loadCaseCrossoverData <- function(folder, readOnly = TRUE) {
 
 #' @export
 print.caseCrossoverData <- function(x, ...) {
-  writeLines("Case data object")
+  writeLines("Case-crossover data object")
   writeLines("")
   writeLines(paste("Outcome concept ID(s):", paste(x$metaData$outcomeIds, collapse = ",")))
   if (x$metaData$nestingCohortId != -1) {
     writeLines(paste("Nesting cohort ID:", x$metaData$nestingCohortId))
   }
+  writeLines(paste("Exposure concept ID(s):", paste(ff::as.ram(ffbase::unique.ff(x$exposures$exposureId)), collapse = ",")))
 }
 
 #' @export
@@ -250,17 +251,27 @@ summary.caseCrossoverData <- function(object, ...) {
     }
   }
 
+  exposureCounts <- data.frame(exposureId = ff::as.ram(ffbase::unique.ff(object$exposures$exposureId)),
+                               exposureCount = 0,
+                              personCount = 0)
+  for (i in 1:nrow(exposureCounts)) {
+    exposures <- object$exposures[object$exposures$exposureId == exposureCounts$exposureId]
+    exposureCounts$exposureCount[i] <- nrow(exposures)
+    exposureCounts$personCount[i] <- length(unique(exposures$personId))
+  }
+
   result <- list(metaData = object$metaData,
                  populationCount = populationCount,
                  populationWindowCount = populationWindowCount,
-                 outcomeCounts = outcomeCounts)
+                 outcomeCounts = outcomeCounts,
+                 exposureCounts = exposureCounts)
   class(result) <- "summary.caseCrossoverData"
   return(result)
 }
 
 #' @export
 print.summary.caseCrossoverData <- function(x, ...) {
-  writeLines("caseCrossoverData object summary")
+  writeLines("Case-crossover data object summary")
   writeLines("")
   writeLines(paste("Outcome concept ID(s):", paste(x$metaData$outcomeIds, collapse = ",")))
   if (x$metaData$nestingCohortId != -1) {
@@ -276,5 +287,11 @@ print.summary.caseCrossoverData <- function(x, ...) {
   outcomeCounts$outcomeConceptId <- NULL
   colnames(outcomeCounts) <- c("Event count", "Case count")
   printCoefmat(outcomeCounts)
+  writeLines("")
+  writeLines("Exposure counts:")
+  exposureCounts <- x$exposureCounts
+  rownames(exposureCounts) <- exposureCounts$exposureId
+  exposureCounts$exposureId <- NULL
+  colnames(exposureCounts) <- c("Exposure count", "Person count")
+  printCoefmat(exposureCounts)
 }
-

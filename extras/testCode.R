@@ -38,60 +38,85 @@ DatabaseConnector::querySql(connection, sql)
 
 RJDBC::dbDisconnect(connection)
 
+
+
+# Case-crossover ----------------------------------------------------------
 caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetails,
                                             cdmDatabaseSchema = cdmDatabaseSchema,
                                             oracleTempSchema = oracleTempSchema,
                                             outcomeDatabaseSchema = cohortDatabaseSchema,
                                             outcomeTable = cohortTable,
                                             outcomeId = 1,
-                                            exposureDatabaseSchema = cohortDatabaseSchema,
-                                            exposureTable = cohortTable,
-                                            exposureIds = 2)
+                                            exposureDatabaseSchema = cdmDatabaseSchema,
+                                            exposureTable = "drug_era",
+                                            exposureIds = 1124300)
 
-saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseData")
+saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
-caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseData")
+caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
-caseData
+caseCrossoverData
 
-summary(caseData)
+summary(caseCrossoverData)
 
-caseControls <- selectControls(caseData = caseData,
-                               outcomeId = 1,
-                               firstOutcomeOnly = TRUE,
-                               washoutPeriod = 180,
-                               controlsPerCase = 2,
-                               matchOnAge = TRUE,
-                               ageCaliper = 2,
-                               matchOnGender = TRUE,
-                               matchOnProvider = FALSE,
-                               matchOnVisitDate = TRUE,
-                               visitDateCaliper = 30)
+subjects <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
+                                    outcomeId = 1,
+                                    firstOutcomeOnly = TRUE,
+                                    washoutPeriod = 183)
 
-saveRDS(caseControls, "s:/temp/vignetteCaseControl2/caseControls.rds")
+exposureStatus <- getExposureStatus(subjects = subjects,
+                                    caseCrossoverData = caseCrossoverData,
+                                    exposureId = 1124300,
+                                    firstExposureOnly = FALSE,
+                                    riskWindowStart = -30,
+                                    riskWindowEnd = 0,
+                                    controlWindowOffsets = c(-60))
 
-caseControls <- readRDS("s:/temp/vignetteCaseControl/caseControls.rds")
+model <- fitCaseCrossoverModel(exposureStatus)
 
-caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails,
-                                          caseControls = caseControls,
-                                          oracleTempSchema = oracleTempSchema,
-                                          exposureDatabaseSchema = cdmDatabaseSchema,
-                                          exposureTable = "drug_era",
-                                          exposureIds = 1124300)
 
-saveRDS(caseControlsExposure, "s:/temp/vignetteCaseControl/caseControlsExposure.rds")
+# Case-time-control -------------------------------------------------------
+caseCrossoverData2 <- getDbCaseCrossoverData(connectionDetails = connectionDetails,
+                                             cdmDatabaseSchema = cdmDatabaseSchema,
+                                             oracleTempSchema = oracleTempSchema,
+                                             outcomeDatabaseSchema = cohortDatabaseSchema,
+                                             outcomeTable = cohortTable,
+                                             outcomeId = 1,
+                                             exposureDatabaseSchema = cdmDatabaseSchema,
+                                             exposureTable = "drug_era",
+                                             exposureIds = 1124300,
+                                             getTimeControlData = TRUE)
 
-caseControlsExposure <- readRDS("s:/temp/vignetteCaseControl/caseControlsExposure.rds")
+saveCaseCrossoverData(caseCrossoverData2, "s:/temp/vignetteCaseCrossover/caseCrossoverData2")
 
-caseControlData <- createCaseControlData(caseControlsExposure = caseControlsExposure,
-                                         exposureId = 1124300,
-                                         firstExposureOnly = FALSE,
-                                         riskWindowStart = 0,
-                                         riskWindowEnd = 0)
+caseCrossoverData2 <- loadCaseCrossoverData2("s:/temp/vignetteCaseCrossover/caseCrossoverData2")
 
-fit <- fitCaseControlModel(caseControlData)
+caseCrossoverData2
 
-coef(fit)
+summary(caseCrossoverData2)
 
-summary(fit)
+matchingCriteria <- createMatchingCriteria(controlsPerCase = 1,
+                                           matchOnAge = TRUE,
+                                           ageCaliper = 2,
+                                           matchOnGender = TRUE)
+
+subjects <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData2,
+                                    outcomeId = 1,
+                                    firstOutcomeOnly = TRUE,
+                                    washoutPeriod = 183,
+                                    matchingCriteria = matchingCriteria)
+
+saveRDS(subjects, "s:/temp/vignetteCaseCrossover/subjects2")
+
+exposureStatus <- getExposureStatus(subjects = subjects,
+                                    caseCrossoverData = caseCrossoverData,
+                                    exposureId = 1124300,
+                                    firstExposureOnly = FALSE,
+                                    riskWindowStart = -30,
+                                    riskWindowEnd = 0,
+                                    controlWindowOffsets = c(-60))
+
+model <- fitCaseCrossoverModel(exposureStatus)
+
+summary(model)
 

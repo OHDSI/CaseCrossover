@@ -10,7 +10,7 @@ getDbCaseCrossoverData(connectionDetails, cdmDatabaseSchema,
   outcomeIds = c(), useNestingCohort = FALSE,
   nestingCohortDatabaseSchema = cdmDatabaseSchema,
   nestingCohortTable = "cohort", nestingCohortId = NULL,
-  useObservationEndAsNestingEndDate = TRUE, getVisits = TRUE,
+  useObservationEndAsNestingEndDate = TRUE, getVisits = FALSE,
   exposureDatabaseSchema = cdmDatabaseSchema, exposureTable = "drug_era",
   exposureIds = c(), studyStartDate = "", studyEndDate = "",
   getTimeControlData = FALSE)
@@ -63,7 +63,8 @@ nestingCohortTable to use as nesting cohort.}
 \item{useObservationEndAsNestingEndDate}{When using a nesting cohort, should the observation
 period end date be used instead of the cohort end date?}
 
-\item{getVisits}{Get data on visits? This is needed when matching on visit
+\item{getVisits}{Get data on visits? This is needed when performing a time-
+case-control study and matching on visit
 date is requested later on.}
 
 \item{exposureDatabaseSchema}{The name of the database schema that is the location where
@@ -95,7 +96,7 @@ case-time-control analyses.}
 }
 \value{
 Returns an object of type \code{caseCrossoverData}, containing information on the cases, the nesting cohort,
-and optionally visits. Information about multiple outcomes can be captured at once for efficiency
+exposures, and optionally visits. Information about multiple outcomes can be captured at once for efficiency
 reasons. The generic \code{summary()} function has been implemented for this object.
 }
 \description{

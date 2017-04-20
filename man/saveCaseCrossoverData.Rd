@@ -4,13 +4,13 @@
 \alias{saveCaseCrossoverData}
 \title{Save the case-crossover data to folder}
 \usage{
-saveCaseCrossoverData(caseCrossover, folder)
+saveCaseCrossoverData(caseCrossoverData, folder)
 }
 \arguments{
-\item{caseCrossover}{An object of type \code{caseCrossover} as generated using \code{\link{getDbCaseCrossoverData}}.}
-
 \item{folder}{The name of the folder where the data will be written. The folder should not yet
 exist.}
+
+\item{caseCrossover}{An object of type \code{caseCrossoverData} as generated using \code{\link{getDbCaseCrossoverData}}.}
 }
 \description{
 \code{saveCaseCrossoverData} saves an object of type caseCrossoverData to folder.
