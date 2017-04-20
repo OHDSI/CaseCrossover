@@ -7,10 +7,11 @@
 saveCaseCrossoverData(caseCrossoverData, folder)
 }
 \arguments{
-\item{folder}{The name of the folder where the data will be written. The folder should not yet
-exist.}
+\item{caseCrossoverData}{An object of type \code{caseCrossoverData} as generated using
+\code{\link{getDbCaseCrossoverData}}.}
 
-\item{caseCrossover}{An object of type \code{caseCrossoverData} as generated using \code{\link{getDbCaseCrossoverData}}.}
+\item{folder}{The name of the folder where the data will be written. The folder should not
+yet exist.}
 }
 \description{
 \code{saveCaseCrossoverData} saves an object of type caseCrossoverData to folder.

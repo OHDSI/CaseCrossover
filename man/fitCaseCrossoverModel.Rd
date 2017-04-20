@@ -7,8 +7,8 @@
 fitCaseCrossoverModel(exposureStatus)
 }
 \arguments{
-\item{exposureStatus}{A data frame as generated using the
-\code{\link{getExposureStatus}} function.}
+\item{exposureStatus}{A data frame as generated using the \code{\link{getExposureStatus}}
+function.}
 }
 \description{
 Fit case-crossover model

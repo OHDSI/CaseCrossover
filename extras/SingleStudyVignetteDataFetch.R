@@ -1,8 +1,6 @@
-# @file SingleStudyVignetteDataFetch.R
-#
 # Copyright 2017 Observational Health Data Sciences and Informatics
 #
-# This file is part of CaseControl
+# This file is part of CaseCrossover
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,17 +15,14 @@
 # limitations under the License.
 
 # This code should be used to fetch the data that is used in the vignettes.
-library(SqlRender)
-library(DatabaseConnector)
-library(CaseControl)
-setwd("s:/temp")
+library(CaseCrossover)
 options(fftempdir = "s:/fftemp")
 
 pw <- NULL
 dbms <- "pdw"
 user <- NULL
 server <- "JRDUSAPSCTL01"
-cdmDatabaseSchema <- "CDM_Truven_MDCD_V464.dbo"
+cdmDatabaseSchema <- "cdm_truven_mdcd_v521.dbo"
 cohortDatabaseSchema <- "scratch.dbo"
 oracleTempSchema <- NULL
 cohortTable <- "mschuemi_cc_vignette"
@@ -60,94 +55,80 @@ DatabaseConnector::querySql(connection, sql)
 
 RJDBC::dbDisconnect(connection)
 
-caseData <- getDbCaseData(connectionDetails = connectionDetails,
-                          cdmDatabaseSchema = cdmDatabaseSchema,
-                          oracleTempSchema = oracleTempSchema,
-                          outcomeDatabaseSchema = cohortDatabaseSchema,
-                          outcomeTable = cohortTable,
-                          outcomeIds = 1,
-                          useNestingCohort = TRUE,
-                          nestingCohortDatabaseSchema = cohortDatabaseSchema,
-                          nestingCohortTable = cohortTable,
-                          nestingCohortId = 2,
-                          useObservationEndAsNestingEndDate = TRUE,
-                          getVisits = TRUE)
 
-# caseData <- getDbCaseData(connectionDetails = connectionDetails, cdmDatabaseSchema =
-# cdmDatabaseSchema, oracleTempSchema = oracleTempSchema, outcomeDatabaseSchema =
-# cohortDatabaseSchema, outcomeTable = cohortTable, outcomeIds = 1, useNestingCohort = TRUE,
-# nestingCohortDatabaseSchema = cohortDatabaseSchema, nestingCohortTable = cohortTable,
-# nestingCohortId = 2, useObservationEndAsNestingEndDate = TRUE, getVisits = TRUE, getExposures =
-# FALSE, exposureDatabaseSchema = cdmDatabaseSchema, exposureTable = 'drug_era', exposureIds =
-# 1124300)
+caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetails,
+                                            cdmDatabaseSchema = cdmDatabaseSchema,
+                                            oracleTempSchema = oracleTempSchema,
+                                            outcomeDatabaseSchema = cohortDatabaseSchema,
+                                            outcomeTable = cohortTable,
+                                            outcomeId = 1,
+                                            exposureDatabaseSchema = cdmDatabaseSchema,
+                                            exposureTable = "drug_era",
+                                            exposureIds = 1124300,
+                                            useNestingCohort = TRUE,
+                                            nestingCohortDatabaseSchema = cohortDatabaseSchema,
+                                            nestingCohortTable = cohortTable,
+                                            nestingCohortId = 2,
+                                            useObservationEndAsNestingEndDate = TRUE,
+                                            getTimeControlData = TRUE)
 
-saveCaseData(caseData, "s:/temp/vignetteCaseControl/caseData")
+saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
-caseData <- loadCaseData("s:/temp/vignetteCaseControl/caseData")
+caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
-caseData
+caseCrossoverData
 
-summary(caseData)
+summary(caseCrossoverData)
 
-caseControls <- selectControls(caseData = caseData,
-                               outcomeId = 1,
-                               firstOutcomeOnly = TRUE,
-                               washoutPeriod = 180,
-                               controlsPerCase = 2,
-                               matchOnAge = TRUE,
-                               ageCaliper = 2,
-                               matchOnGender = TRUE,
-                               matchOnProvider = FALSE,
-                               matchOnVisitDate = TRUE,
-                               visitDateCaliper = 30)
+# Case-crossover ----------------------------------------------------------
 
-saveRDS(caseControls, "s:/temp/vignetteCaseControl/caseControls.rds")
+subjects <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
+                                    outcomeId = 1,
+                                    firstOutcomeOnly = TRUE,
+                                    washoutPeriod = 183)
 
-caseControls <- readRDS("s:/temp/vignetteCaseControl/caseControls.rds")
+head(subjects)
+saveRDS(subjects, "s:/temp/vignetteCaseCrossover/subjects.rds")
 
+exposureStatus <- getExposureStatus(subjects = subjects,
+                                    caseCrossoverData = caseCrossoverData,
+                                    exposureId = 1124300,
+                                    firstExposureOnly = FALSE,
+                                    riskWindowStart = -30,
+                                    riskWindowEnd = 0,
+                                    controlWindowOffsets = c(-60))
+head(exposureStatus)
 
-covariateSettings <- createCovariateSettings(useCovariateRiskScores = TRUE,
-                                             useCovariateRiskScoresCharlson = TRUE,
-                                             useCovariateRiskScoresDCSI = TRUE,
-                                             useCovariateRiskScoresCHADS2 = TRUE)
-
-caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails,
-                                          caseControls = caseControls,
-                                          oracleTempSchema = oracleTempSchema,
-                                          exposureDatabaseSchema = cdmDatabaseSchema,
-                                          exposureTable = "drug_era",
-                                          exposureIds = 1124300,
-                                          covariateSettings = covariateSettings)
-
-# caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails, caseControls =
-# caseControls, oracleTempSchema = oracleTempSchema, exposureIds = 1124300, covariateSettings = NULL,
-# caseData = caseData)
-
-saveCaseControlsExposure(caseControlsExposure, "s:/temp/vignetteCaseControl/caseControlsExposure")
-
-caseControlsExposure <- loadCaseControlsExposure("s:/temp/vignetteCaseControl/caseControlsExposure")
-
-caseControlData <- createCaseControlData(caseControlsExposure = caseControlsExposure,
-                                         exposureId = 1124300,
-                                         firstExposureOnly = FALSE,
-                                         riskWindowStart = 0,
-                                         riskWindowEnd = 0)
+saveRDS(exposureStatus, "s:/temp/vignetteCaseCrossover/exposureStatus.rds")
 
 
+fit <- fitCaseCrossoverModel(exposureStatus)
+saveRDS(fit, "s:/temp/vignetteCaseCrossover/fit.rds")
 
-head(caseControlData)
+# Case-time-control -------------------------------------------------------
 
-fit <- fitCaseControlModel(caseControlData,
-                           useCovariates = TRUE,
-                           caseControlsExposure = caseControlsExposure,
-                           prior = createPrior("none"))
+matchingCriteria <- createMatchingCriteria(controlsPerCase = 1,
+                                           matchOnAge = TRUE,
+                                           ageCaliper = 2,
+                                           matchOnGender = TRUE)
 
-saveRDS(fit, "s:/temp/vignetteCaseControl/fit.rds")
+subjectsCtc <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
+                                       outcomeId = 1,
+                                       firstOutcomeOnly = TRUE,
+                                       washoutPeriod = 183,
+                                       matchingCriteria = matchingCriteria)
 
-fit <- readRDS("s:/temp/vignetteCaseControl/fit.rds")
+exposureStatusCtc <- getExposureStatus(subjects = subjectsCtc,
+                                       caseCrossoverData = caseCrossoverData,
+                                       exposureId = 1124300,
+                                       firstExposureOnly = FALSE,
+                                       riskWindowStart = -30,
+                                       riskWindowEnd = 0,
+                                       controlWindowOffsets = c(-60))
 
-confint(fit)
+fitCtc <- fitCaseCrossoverModel(exposureStatusCtc)
 
-coef(fit)
+summary(fitCtc)
+saveRDS(fitCtc, "s:/temp/vignetteCaseCrossover/fitCtc.rds")
 
-summary(fit)
+

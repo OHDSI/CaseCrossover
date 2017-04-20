@@ -4,7 +4,7 @@
 \alias{createMatchingCriteria}
 \title{Create matching criteria}
 \usage{
-createMatchingCriteria(controlsPerCase = 2, matchOnAge = TRUE,
+createMatchingCriteria(controlsPerCase = 1, matchOnAge = TRUE,
   ageCaliper = 2, matchOnGender = TRUE, matchOnProvider = FALSE,
   matchOnCareSite = FALSE, matchOnVisitDate = FALSE,
   visitDateCaliper = 30, matchOnTimeInCohort = FALSE,
@@ -26,8 +26,8 @@ createMatchingCriteria(controlsPerCase = 2, matchOnAge = TRUE,
 \item{matchOnVisitDate}{Should the index date of the control be changed to the nearest visit
 date?}
 
-\item{visitDateCaliper}{Maximum difference (in days) between the index date and the visit
-date when matching on visit date.}
+\item{visitDateCaliper}{Maximum difference (in days) between the index date and the visit date
+when matching on visit date.}
 
 \item{matchOnTimeInCohort}{Match on time in nesting cohort? When not using nesting, this is
 interpreted as time observed prior to index.}

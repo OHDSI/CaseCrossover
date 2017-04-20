@@ -137,10 +137,10 @@ getDbCaseCrossoverData <- function(connectionDetails,
 #' @description
 #' \code{saveCaseCrossoverData} saves an object of type caseCrossoverData to folder.
 #'
-#' @param caseCrossover   An object of type \code{caseCrossoverData} as generated using
-#'                        \code{\link{getDbCaseCrossoverData}}.
-#' @param folder          The name of the folder where the data will be written. The folder should not
-#'                        yet exist.
+#' @param caseCrossoverData   An object of type \code{caseCrossoverData} as generated using
+#'                            \code{\link{getDbCaseCrossoverData}}.
+#' @param folder              The name of the folder where the data will be written. The folder should not
+#'                            yet exist.
 #'
 #' @details
 #' The data will be written to a set of files in the specified folder.

@@ -63,27 +63,29 @@ nestingCohortTable to use as nesting cohort.}
 \item{useObservationEndAsNestingEndDate}{When using a nesting cohort, should the observation
 period end date be used instead of the cohort end date?}
 
-\item{getVisits}{Get data on visits? This is needed when performing a time-
-case-control study and matching on visit
-date is requested later on.}
+\item{getVisits}{Get data on visits? This is needed when performing a
+time- case-control study and matching on visit date is
+requested later on.}
 
-\item{exposureDatabaseSchema}{The name of the database schema that is the location where
-the exposure data used to define the exposure cohorts is
-available. If exposureTable = DRUG_ERA,
+\item{exposureDatabaseSchema}{The name of the database schema that is the location
+where the exposure data used to define the exposure
+cohorts is available. If exposureTable = DRUG_ERA,
 exposureDatabaseSchema is not used but assumed to be
 cdmSchema.  Requires read permissions to this database.}
 
 \item{exposureTable}{The tablename that contains the exposure cohorts.  If
-exposureTable <> DRUG_ERA, then expectation is exposureTable
-has format of COHORT table: cohort_concept_id, SUBJECT_ID,
-COHORT_START_DATE, COHORT_END_DATE.}
+exposureTable <> DRUG_ERA, then expectation is
+exposureTable has format of COHORT table:
+cohort_concept_id, SUBJECT_ID, COHORT_START_DATE,
+COHORT_END_DATE.}
 
-\item{exposureIds}{A list of identifiers to define the exposures of interest. If
-exposureTable = DRUG_ERA, exposureIds should be CONCEPT_ID.
-If exposureTable <> DRUG_ERA, exposureIds is used to select
-the cohort_concept_id in the cohort-like table. If no
-exposureIds are provided, all drugs or cohorts in the
-exposureTable are included as exposures.}
+\item{exposureIds}{A list of identifiers to define the exposures of
+interest. If exposureTable = DRUG_ERA, exposureIds should
+be CONCEPT_ID. If exposureTable <> DRUG_ERA, exposureIds
+is used to select the cohort_concept_id in the
+cohort-like table. If no exposureIds are provided, all
+drugs or cohorts in the exposureTable are included as
+exposures.}
 
 \item{studyStartDate}{A calendar date specifying the minimum date where data is
 used. Date format is 'yyyymmdd'.}
@@ -95,9 +97,10 @@ used. Date format is 'yyyymmdd'.}
 case-time-control analyses.}
 }
 \value{
-Returns an object of type \code{caseCrossoverData}, containing information on the cases, the nesting cohort,
-exposures, and optionally visits. Information about multiple outcomes can be captured at once for efficiency
-reasons. The generic \code{summary()} function has been implemented for this object.
+Returns an object of type \code{caseCrossoverData}, containing information on the cases, the
+nesting cohort, exposures, and optionally visits. Information about multiple outcomes can be
+captured at once for efficiency reasons. The generic \code{summary()} function has been implemented
+for this object.
 }
 \description{
 Load all data about the cases from the database.

@@ -49,7 +49,13 @@ caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetail
                                             outcomeId = 1,
                                             exposureDatabaseSchema = cdmDatabaseSchema,
                                             exposureTable = "drug_era",
-                                            exposureIds = 1124300)
+                                            exposureIds = 1124300,
+                                            useNestingCohort = TRUE,
+                                            nestingCohortDatabaseSchema = cohortDatabaseSchema,
+                                            nestingCohortTable = cohortTable,
+                                            nestingCohortId = 2,
+                                            useObservationEndAsNestingEndDate = TRUE,
+                                            getTimeControlData = TRUE)
 
 saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseCrossoverData")
 

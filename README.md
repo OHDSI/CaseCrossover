@@ -9,8 +9,8 @@ Features
 ========
 - Extracts the necessary data from a database in OMOP Common Data Model format
 - Nesting in a cohort of interest (e.g. people with a particular prior condition)
-- Matching on age, gender, provider, time in cohort, and/or visit
-- Sampling of controls per case
+- Ability to specify multiple control windows
+- Ability to adjust for time-trends in exposure (case-time-control design)
 - Fitting outcome models using conditional logisitc regression
 
 Technology

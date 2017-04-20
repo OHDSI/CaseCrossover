@@ -15,7 +15,8 @@ loadCaseCrossoverData(folder, readOnly = TRUE)
 An object of class \code{caseCrossoverData}.
 }
 \description{
-\code{loadCaseCrossoverData} loads an object of type caseCrossoverData from a folder in the file system.
+\code{loadCaseCrossoverData} loads an object of type caseCrossoverData from a folder in the file
+system.
 }
 \details{
 The data will be written to a set of files in the folder specified by the user.

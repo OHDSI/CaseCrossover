@@ -18,6 +18,8 @@
 #'
 #' @docType package
 #' @name CaseCrossover
+#' @importFrom stats coef confint pnorm printCoefmat qnorm
+#' @import DatabaseConnector
 NULL
 
 .onLoad <- function(libname, pkgname) {

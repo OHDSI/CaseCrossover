@@ -10,26 +10,25 @@ selectSubjectsToInclude(caseCrossoverData, outcomeId, firstOutcomeOnly = TRUE,
 }
 \arguments{
 \item{caseCrossoverData}{An object of type \code{caseCrossoverData} as generated using the
-\code{\link{getDbCasecrossoverData}} function.}
+\code{\link{getDbCaseCrossoverData}} function.}
 
 \item{outcomeId}{The outcome ID of the cases for which we need to pick controls.}
 
 \item{firstOutcomeOnly}{Use the first outcome per person?}
 
-\item{washoutPeriod}{Minimum required numbers of days of observation for inclusion as
-either case or control.}
+\item{washoutPeriod}{Minimum required numbers of days of observation for inclusion as either
+case or control.}
 
 \item{matchingCriteria}{If provided, a case-time-control analysis will be performed and controls
 will be matched based on these criteria.}
 
-\item{minAge}{Minimum age at which patient time will be included in the analysis.
-Note that information prior to the min age is still used to determine
-exposure status after the minimum age (e.g. when a prescription was
-started just prior to reaching the minimum age). Also, outcomes
-occurring before the minimum age is reached will be considered as
-prior outcomes when using first outcomes only. Age should be specified
-in years, but non-integer values are allowed. If not specified, no age
-restriction will be applied.}
+\item{minAge}{Minimum age at which patient time will be included in the analysis. Note
+that information prior to the min age is still used to determine exposure
+status after the minimum age (e.g. when a prescription was started just
+prior to reaching the minimum age). Also, outcomes occurring before the
+minimum age is reached will be considered as prior outcomes when using
+first outcomes only. Age should be specified in years, but non-integer
+values are allowed. If not specified, no age restriction will be applied.}
 
 \item{maxAge}{Maximum age at which patient time will be included in the analysis. Age
 should be specified in years, but non-integer values are allowed. If not
@@ -38,17 +37,18 @@ specified, no age restriction will be applied.}
 \value{
 A data frame with these columns: \describe{ \item{personId}{The person ID} \item{indexDate}{The
 index date} \item{isCase}{Is the person a case or a control?} \item{stratumId}{The ID linking cases
-and controls in a matched set} \item{observationPeriodStartDate}{The observation period start date}}
+and controls in a matched set} \item{observationPeriodStartDate}{The observation period start
+date}}
 }
 \description{
 Select subjects to include
 }
 \details{
-Subject to include in the study are selected for a specific outcome, optionally filtering using a washout
-period, restricting to first occurrences of the outcome only, and restricting on age.
-
-If matching criteria are provided controls will be selected for each case. These controls will be used
-to adjust for time trends in exposure, turning the analysis into a case-time-control analysis (Suissa, 1995).
+Subject to include in the study are selected for a specific outcome, optionally filtering using a
+washout period, restricting to first occurrences of the outcome only, and restricting on age.
+If matching criteria are provided controls will be selected for each case. These controls will be
+used to adjust for time trends in exposure, turning the analysis into a case-time-control analysis
+(Suissa, 1995).
 }
 \references{
 Suissa S (1995) The case-time-control design. Epidemiology; 6:248-253.

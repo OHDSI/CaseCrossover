@@ -43,7 +43,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
     treatmentVar <- "exposed"
   }
   fit <- tryCatch({
-    Cyclops::fitCyclopsModel(cyclopsData, prior = createPrior("none"))
+    Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
   }, error = function(e) {
     e$message
   })

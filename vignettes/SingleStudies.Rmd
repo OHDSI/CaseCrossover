@@ -1,5 +1,5 @@
 ---
-title: "Single studies using the CaseControl package"
+title: "Single studies using the CaseCrossover package"
 author: "Martijn J. Schuemie"
 date: "`r Sys.Date()`"
 output:
@@ -10,13 +10,13 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Single studies using CaseControl}
+  %\VignetteIndexEntry{Single studies using CaseCrossover}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}      
 ---
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
-library(CaseControl)
+library(CaseCrossover)
 knitr::opts_chunk$set(
   cache=FALSE,
   comment = "#>",
@@ -25,41 +25,36 @@ knitr::opts_chunk$set(
 ```
 # Introduction
 
-This vignette describes how you can use the `CaseControl` package to perform a single case-control study. We will walk through all the steps needed to perform an exemplar study, and we have selected the well-studied topic of the effect of NSAIDs on gastrointestinal (GI) bleeding-related hospitalization. For simplicity, we focus on one NSAID: diclofenac.
+This vignette describes how you can use the `CaseCrossover` package to perform a single case-crossover study. We will walk through all the steps needed to perform an exemplar study, and we have selected the well-studied topic of the effect of NSAIDs on gastrointestinal (GI) bleeding-related hospitalization. For simplicity, we focus on one NSAID: diclofenac.
 
 # Installation instructions
 
-Before installing the `CaseControl` package make sure you have Java available.  Java can be downloaded from [www.java.com](http://www.java.com). For Windows users, RTools is also necessary.  RTools can be downloaded from [CRAN](http://cran.r-project.org/bin/windows/Rtools/).
+Before installing the `CaseCrossover` package make sure you have Java available.  Java can be downloaded from [www.java.com](http://www.java.com). For Windows users, RTools is also necessary.  RTools can be downloaded from [CRAN](http://cran.r-project.org/bin/windows/Rtools/).
 
-The `CaseControl` package is currently maintained in a [Github repository](https://github.com/OHDSI/CaseControl), and has dependencies on other packages in Github. All of these packages can be downloaded and installed from within R using the `devtools` package:
+The `CaseCrossover` package is currently maintained in a [Github repository](https://github.com/OHDSI/CaseCrossover), and has dependencies on other packages in Github. All of these packages can be downloaded and installed from within R using the `drat` package:
 
 ```{r tidy=TRUE,eval=FALSE}
-install.packages("devtools")
-library(devtools)
-install_github("ohdsi/OhdsiRTools") 
-install_github("ohdsi/SqlRender") 
-install_github("ohdsi/DatabaseConnector") 
-install_github("ohdsi/Cyclops") 
-install_github("ohdsi/CaseControl") 
+install.packages("drat")
+drat::addRepo("OHDSI")
+install.packages("CaseCrossover")
 ```
 
-Once installed, you can type `library(CaseControl)` to load the package.
+Once installed, you can type `library(CaseCrossover)` to load the package.
 
 # Overview
 
-In the `CaseControl` package a study requires at least five steps:
+In the `CaseCrossover` package a study requires four steps:
 
-1. Loading data on the cases and potential controls from the database needed for matching.
-2. Selecting controls per case.
-3. Loading exposure information for cases and controls.
-4. Determining exposure status for cases and controls based on a definition of the risk window.
-5. Fitting the model using conditional logistic regression.
+1. Loading data on the cases (and potential controls when performing a case-time-control analysis) from the database needed for matching.
+2. Selecting subjects to include in the study.
+3. Determining exposure status for cases (and controls) based on a definition of the risk windows.
+4. Fitting the model using conditional logistic regression.
 
 In the following sections these steps will be demonstrated.
 
 # Configuring the connection to the server
 
-We need to tell R how to connect to the server where the data are. `CaseControl` uses the `DatabaseConnector` package, which provides the `createConnectionDetails` function. Type `?createConnectionDetails` for the specific settings required for the various database management systems (DBMS). For example, one might connect to a PostgreSQL database using this code:
+We need to tell R how to connect to the server where the data are. `CaseCrossover` uses the `DatabaseConnector` package, which provides the `createConnectionDetails` function. Type `?createConnectionDetails` for the specific settings required for the various database management systems (DBMS). For example, one might connect to a PostgreSQL database using this code:
 
 ```{r tidy=FALSE,eval=FALSE}
 connectionDetails <- createConnectionDetails(dbms = "postgresql", 
@@ -154,159 +149,134 @@ data.frame(cohort_definition_id = c(1,2),count=c(422274, 118430))
 
 # Extracting the data from the server
 
-Now we can tell `CaseControl` to extract the necessary data on cases and potential controls:
+Now we can tell `CaseCrossover` to extract the necessary data on the cases:
 
 ```{r tidy=FALSE,eval=FALSE}
-caseData <- getDbCaseData(connectionDetails = connectionDetails,
-                          cdmDatabaseSchema = cdmDatabaseSchema,
-                          oracleTempSchema = oracleTempSchema,
-                          outcomeDatabaseSchema = cohortDatabaseSchema,
-                          cohortTable = cohortTable,
-                          outcomeIds = 1,
-                          useNestingCohort = TRUE,
-                          nestingCohortDatabaseSchema = cohortDatabaseSchema,
-                          nestingCohortTable = cohortTable,
-                          nestingCohortId = 2,
-                          useObservationEndAsNestingEndDate = TRUE,
-                          getVisits = TRUE)
-caseData
+caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetails,
+                                            cdmDatabaseSchema = cdmDatabaseSchema,
+                                            oracleTempSchema = oracleTempSchema,
+                                            outcomeDatabaseSchema = cohortDatabaseSchema,
+                                            outcomeTable = cohortTable,
+                                            outcomeId = 1,
+                                            exposureDatabaseSchema = cdmDatabaseSchema,
+                                            exposureTable = "drug_era",
+                                            exposureIds = 1124300,
+                                            useNestingCohort = TRUE,
+                                            nestingCohortDatabaseSchema = cohortDatabaseSchema,
+                                            nestingCohortTable = cohortTable,
+                                            nestingCohortId = 2,
+                                            useObservationEndAsNestingEndDate = TRUE,
+                                            getTimeControlData = TRUE)
+
+
+caseCrossoverData
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseControl")){
-  caseData <- loadCaseData("s:/temp/vignetteCaseControl/caseData")
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
 } 
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
-  caseData
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  caseCrossoverData
 }
 ```
 
-There are many parameters, but they are all documented in the `CaseControl` manual. In short, we are pointing the function to the table created earlier and indicating which concept ID in that table identifies the outcome. Note that it is possible to fetch the data for multiple outcomes at once for efficiency. We furthermore specify a nesting cohort in the same table, meaning that people will be eligible to be cases or controls if and when they fall inside the specified cohort. In this case, the nesting cohort starts when people have their first diagnosis of rheumatoid arthritis. We use the `useObservationEndAsNestingEndDate` argument to indicate people will stay eligible until the end of their observation period. We furthermore specify we want to retrieve data on patient visits, which will be used later on for matching.
+There are many parameters, but they are all documented in the `CaseCrossover` manual. In short, we are pointing the function to the table created earlier and indicating which concept ID in that table identifies the outcome. Note that it is possible to fetch the data for multiple outcomes at once for efficiency. We specify that we will use the `drug_era` table to identify exposures, and will only retrieve data on exposure to Diclofenac (concept ID 1124300). We furthermore specify a nesting cohort in the same table, meaning that people will be eligible to be cases if and when they fall inside the specified cohort. In this case, the nesting cohort starts when people have their first diagnosis of rheumatoid arthritis. We use the `useObservationEndAsNestingEndDate` argument to indicate people will stay eligible until the end of their observation period. We furthermore specify we want to retrieve data on time controls, which will be used later to adjust for time-trends in exposures, effectively turning the case-crossover study into a case-time-control study.
 
-Data about the cases and potential controls are extracted from the server and stored in the `caseData` object. This object uses the package `ff` to store information in a way that ensures R does not run out of memory, even when the data are large. 
+Data about the cases (and potential time controls) are extracted from the server and stored in the `caseCrossoverData` object. This object uses the package `ff` to store information in a way that ensures R does not run out of memory, even when the data are large. 
 
 We can use the generic `summary()` function to view some more information of the data we extracted:
 
 ```{r tidy=TRUE,eval=FALSE}
-summary(caseData)
+summary(caseCrossoverData)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
-  summary(caseData)
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  summary(caseCrossoverData)
 }
 ```
 
 ## Saving the data to file
 
-Creating the `caseData` object can take considerable computing time, and it is probably a good idea to save it for future sessions. Because `caseData` uses `ff`, we cannot use R's regular save function. Instead, we'll have to use the `saveCaseData()` function:
+Creating the `caseCrossoverData` object can take considerable computing time, and it is probably a good idea to save it for future sessions. Because `caseCrossoverData` uses `ff`, we cannot use R's regular save function. Instead, we'll have to use the `saveCaseCrossoverData()` function:
 
 ```{r tidy=TRUE,eval=FALSE}
-saveCaseData(caseData, "GiBleed")
+saveCaseCrossoverData(caseCrossoverData, "GiBleed")
 ```
 
-We can use the `loadCaseData()` function to load the data in a future session.
+We can use the `loadCaseCrossoverData()` function to load the data in a future session.
 
-# Selecting controls
+# Selecting subjects
 
 Next, we can use the data to select matched controls per case:
 
 ```{r tidy=FALSE,eval=FALSE}
-caseControls <- selectControls(caseData = caseData,
-                               outcomeId = 1,
-                               firstOutcomeOnly = TRUE,
-                               washoutPeriod = 180,
-                               controlsPerCase = 2,
-                               matchOnAge = TRUE,
-                               ageCaliper = 2,
-                               matchOnGender = TRUE,
-                               matchOnProvider = FALSE,
-                               matchOnVisitDate = TRUE,
-                               visitDateCaliper = 30,
-                               removedUnmatchedCases = TRUE)
+subjects <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
+                                    outcomeId = 1,
+                                    firstOutcomeOnly = TRUE,
+                                    washoutPeriod = 183)
 ```
 
-In this example, we specify a washout period of 180 days, meaning that both cases and controls are required to have a minimum of 180 days of observation prior to the index date. We also specify we will only consider the first outcome per person. If a person's first outcome is within the washout period, that person will be removed from the analysis. We match on calendar time (implicit), age, gender, and visit date, and randomly sample up to two controls per case. Matching on visit date implies that the control should have a visit within n days from the index date of the case (n = 30 in this example), and the index date for the control will be set to the visit date. The purpose of this is to make the index dates more similar between cases and control, because almost by definition we would expect the case to have a visit on the index date. Finally, we ask that cases for which no matching control was found be removed from the analysis.
+In this example, we specify a washout period of 180 days, meaning that cases (and controls) are required to have a minimum of 180 days of observation prior to the index date. We also specify we will only consider the first outcome per person. If a person's first outcome is within the washout period, that person will be removed from the analysis. 
 
-The `caseControls` object is a data frame with four columns:
+The `subjects` object is a data frame with five columns:
 
 ```{r echo=TRUE,message=FALSE,eval=FALSE}
-head(caseControls)
+head(subjects)
 ```
 ```{r echo=FALSE,message=FALSE}
 data.frame(personId = c(3,123,345,6,234,567),
            indexDate = c("2009-10-10", "2009-10-11", "2009-10-09", "2010-05-04", "2010-05-04", "2010-05-05"), 
-           isCase = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE), 
-           stratumId = c(1,1,1,2,2,2))
+           isCase = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE), 
+           stratumId = c(1,2,3,4,5,6),
+           observationPeriodStartDate = c("2001-10-12", "2002-01-11", "2001-05-03", "2003-02-01", "2007-01-01", "2006-03-01"))
 ```
 
 We can show the attrition to see why cases and events were filtered:
 
 ```{r tidy=FALSE,eval=FALSE}
-getAttritionTable(caseControls)
+getAttritionTable(subjects)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseControl")){
-  caseControls <- readRDS("s:/temp/vignetteCaseControl/caseControls.rds")
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  subjects <- readRDS("s:/temp/vignetteCaseCrossover/subjects.rds")
 } 
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
-  getAttritionTable(caseControls)
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  getAttritionTable(subjects)
 }
 ```
 
-# Loading exposure data and covariates
+# Determining exposure status
 
-Next, we load information on the exposures of the cases and controls, as well as covariates.
-
-```{r tidy=FALSE,eval=FALSE}
-covarSettings <- createCovariateSettings(useCovariateRiskScores = TRUE,
-                                         useCovariateRiskScoresCharlson = TRUE,
-                                         useCovariateRiskScoresDCSI = TRUE,
-                                         useCovariateRiskScoresCHADS2 = TRUE)
-
-caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails,
-                                          caseControls = caseControls,
-                                          oracleTempSchema = oracleTempSchema,
-                                          exposureDatabaseSchema = cdmDatabaseSchema,
-                                          exposureTable = "drug_era",
-                                          exposureIds = 1124300,
-                                          covariateSettings = covarSettings)
-```
-
-Here we specify that we will use the `drug_era` table to identify exposures, and will only retrieve data on exposure to Diclofenac (concept ID 1124300). We use the `covariateSettings` function of the FeatureExtraction package to specify which covariates to construct. In this example the only coviariates are the Charlson comorbidity index, Diabetes Complications Severity Index (DCSI), and CHADS2 score.
-
-When including covariates, the `caseControlsExposure` object uses `ff` to store large objects and therefore cannot be stored using standard functions. Please use `saveCaseControlsExposure` to save:
-
-```{r tidy=TRUE,eval=FALSE}
-saveCaseControlsExposure(caseControlsExposure, "caseControlsExposure")
-```
-
-# Creating case-control data
-
-We can now use the exposure data to determine exposure status for the cases and controls. (The reason why fetching exposure data and determining exposure status is split up is that this is more efficient when we want to evaluate several risk window definitions.)
+We can now evaluate the exposure status of the cases in various time windows relative to the index date:
 
 ```{r tidy=FALSE,eval=FALSE}
-caseControlData <- createCaseControlData(caseControlsExposure = caseControlsExposure,
-                                         exposureId = 1124300,
-                                         firstExposureOnly = FALSE,
-                                         riskWindowStart = 0,
-                                         riskWindowEnd = 0)
+exposureStatus <- getExposureStatus(subjects = subjects,
+                                    caseCrossoverData = caseCrossoverData,
+                                    exposureId = 1124300,
+                                    firstExposureOnly = FALSE,
+                                    riskWindowStart = -30,
+                                    riskWindowEnd = 0,
+                                    controlWindowOffsets = c(-60))
 ```
 
-Here we specify we are intested in all exposures, not just the first one, and that the exposure should overlap with the index date (the risk window starts and ends on day 0, the index date). The `caseControlData` object is a data frame with five columns:
+Here we specify we are intested in all exposures, not just the first one, and that we will use two windows per subject: a case window defined as the 30 days preceding (and including) the index date, and a control window which has the same length as the case window but is shifted 60 days backwards, so from 90 days to (and including) 60 days prior to the index date. Note that multiple control windows can be specified by specifying more control window offsets. 
+
+Exposure status is then determined based on whether an exposure overlaps with one of the windows. The resulting  `exposureStatus` object is a data frame with six columns:
 			  
 ```{r echo=TRUE,message=FALSE,eval=FALSE}
-head(caseControlData)
+head(exposureStatus)
 ```
 ```{r echo=FALSE,message=FALSE}
 data.frame(personId = c(3,123,345,6,234,567),
            indexDate = c("2009-10-10", "2009-10-11", "2009-10-09", "2010-05-04", "2010-05-04", "2010-05-05"), 
-           isCase = c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE), 
-           stratumId = c(1,1,1,2,2,2), 
-           rowId = c(1,2,3,4,5,6),
-           exposed = c(1,0,0,0,0,0))
+           isCase = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE), 
+           stratumId = c(1,2,3,4,5,6),
+           isCaseWindow = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE), 
+           exposed = c(0, 0, 0, 0, 0, 0))
 ```
 
 # Fitting the model
@@ -314,16 +284,13 @@ data.frame(personId = c(3,123,345,6,234,567),
 We can now fit the model, which is a logistic regression conditioned on the matched sets:
 
 ```{r tidy=FALSE,eval=FALSE}
-fit <- fitCaseControlModel(caseControlData,
-                           useCovariates = TRUE,
-                           caseControlsExposure = caseControlsExposure,
-                           prior = createPrior("none"))
+fit <- fitCaseCrossoverModel(exposureStatus)
 
 fit
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
-  fit <- readRDS("s:/temp/vignetteCaseControl/fit.rds")
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  fit <- readRDS("s:/temp/vignetteCaseCrossover/fit.rds")
   fit
 }
 ```
@@ -334,7 +301,7 @@ The generic functions `summary`, `coef`, and `confint` are implemented for the `
 summary(fit)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
+if (file.exists("s:/temp/vignetteCaseCrossover")){
   summary(fit)
 }
 ```
@@ -343,7 +310,7 @@ if (file.exists("s:/temp/vignetteCaseControl")){
 coef(fit)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
+if (file.exists("s:/temp/vignetteCaseCrossover")){
   coef(fit)
 }
 ```
@@ -352,20 +319,59 @@ if (file.exists("s:/temp/vignetteCaseControl")){
 confint(fit)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl")){
+if (file.exists("s:/temp/vignetteCaseCrossover")){
   confint(fit)
+}
+```
+
+# Case-time-control
+
+A variant of the case-crossover design is the case-time-control design. This design adjusts for time-trends in exposure by using a set of control subjects. To use this design in the `CaseCrossover` package, one needs to simply provide matching criteria to the `selectSubjectsToInclude` function:
+
+```{r tidy=FALSE,eval=FALSE}
+matchingCriteria <- createMatchingCriteria(controlsPerCase = 1,
+                                           matchOnAge = TRUE,
+                                           ageCaliper = 2,
+                                           matchOnGender = TRUE)
+
+subjectsCtc <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
+                                       outcomeId = 1,
+                                       firstOutcomeOnly = TRUE,
+                                       washoutPeriod = 183,
+                                       matchingCriteria = matchingCriteria)
+```
+
+The other steps remain the same:
+
+```{r tidy=FALSE,eval=FALSE}
+exposureStatusCtc <- getExposureStatus(subjects = subjectsCtc,
+                                       caseCrossoverData = caseCrossoverData,
+                                       exposureId = 1124300,
+                                       firstExposureOnly = FALSE,
+                                       riskWindowStart = -30,
+                                       riskWindowEnd = 0,
+                                       controlWindowOffsets = c(-60))
+
+fitCtc <- fitCaseCrossoverModel(exposureStatusCtc)
+
+summary(fitCtc)
+```
+```{r echo=FALSE,message=FALSE}
+if (file.exists("s:/temp/vignetteCaseCrossover")){
+  fitCtc <- readRDS("s:/temp/vignetteCaseCrossover/fitCtc.rds")
+  summary(fitCtc)
 }
 ```
 
 # Acknowledgments
 
-Considerable work has been dedicated to provide the `CaseControl` package.
+Considerable work has been dedicated to provide the `CaseCrossover` package.
 
 ```{r tidy=TRUE,eval=TRUE}
-citation("CaseControl")
+citation("CaseCrossover")
 ```
 
-Furthermore, `CaseControl` makes extensive use of the `Cyclops` package.
+Furthermore, `CaseCrossover` makes extensive use of the `Cyclops` package.
 
 ```{r tidy=TRUE,eval=TRUE}
 citation("Cyclops")

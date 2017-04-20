@@ -23,7 +23,9 @@
 #' @param subjects               A data frame as generated using the
 #'                               \code{\link{selectSubjectsToInclude}} function.
 #' @param caseCrossoverData      An object of type \code{caseCrossoverData} as generated using the
-#'                               \code{\link{getDbCasecrossoverData}} function.
+#'                               \code{\link{getDbCaseCrossoverData}} function.
+#' @param exposureId             The identifier of the exposure.
+#' @param firstExposureOnly      Should only the first exposure per subject be included?
 #' @param riskWindowStart        The start of the risk window (in days) relative to the index date.
 #'                               This number should be non-positive.
 #' @param riskWindowEnd          The end of the risk window (in days) relative to the index date. This

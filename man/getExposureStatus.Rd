@@ -13,7 +13,11 @@ getExposureStatus(subjects, caseCrossoverData, exposureId,
 \code{\link{selectSubjectsToInclude}} function.}
 
 \item{caseCrossoverData}{An object of type \code{caseCrossoverData} as generated using the
-\code{\link{getDbCasecrossoverData}} function.}
+\code{\link{getDbCaseCrossoverData}} function.}
+
+\item{exposureId}{The identifier of the exposure.}
+
+\item{firstExposureOnly}{Should only the first exposure per subject be included?}
 
 \item{riskWindowStart}{The start of the risk window (in days) relative to the index date.
 This number should be non-positive.}
@@ -26,13 +30,13 @@ number should be non-positive.}
 \value{
 A data frame with these columns: \describe{ \item{personId}{The person ID} \item{indexDate}{The
 index date} \item{isCase}{Is the person a case or a control?} \item{stratumId}{The ID linking cases
-and controls in a matched set} \item{isCaseWindow}{Is this a case window (as opposed to a control window)?}
-\item{exposed}{Was the person exposed during the window?}}
+and controls in a matched set} \item{isCaseWindow}{Is this a case window (as opposed to a control
+window)?} \item{exposed}{Was the person exposed during the window?}}
 }
 \description{
 Get the exposure status for cases (and controls).
 }
 \details{
-This function determines the exposure status for a give, exposure ID in various windows relative to the
-index date.
+This function determines the exposure status for a give, exposure ID in various windows relative to
+the index date.
 }
