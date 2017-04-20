@@ -73,22 +73,13 @@ caseData <- getDbCaseData(connectionDetails = connectionDetails,
                           useObservationEndAsNestingEndDate = TRUE,
                           getVisits = TRUE)
 
-# caseData <- getDbCaseData(connectionDetails = connectionDetails,
-#                           cdmDatabaseSchema = cdmDatabaseSchema,
-#                           oracleTempSchema = oracleTempSchema,
-#                           outcomeDatabaseSchema = cohortDatabaseSchema,
-#                           outcomeTable = cohortTable,
-#                           outcomeIds = 1,
-#                           useNestingCohort = TRUE,
-#                           nestingCohortDatabaseSchema = cohortDatabaseSchema,
-#                           nestingCohortTable = cohortTable,
-#                           nestingCohortId = 2,
-#                           useObservationEndAsNestingEndDate = TRUE,
-#                           getVisits = TRUE,
-#                           getExposures = FALSE,
-#                           exposureDatabaseSchema = cdmDatabaseSchema,
-#                           exposureTable = "drug_era",
-#                           exposureIds = 1124300)
+# caseData <- getDbCaseData(connectionDetails = connectionDetails, cdmDatabaseSchema =
+# cdmDatabaseSchema, oracleTempSchema = oracleTempSchema, outcomeDatabaseSchema =
+# cohortDatabaseSchema, outcomeTable = cohortTable, outcomeIds = 1, useNestingCohort = TRUE,
+# nestingCohortDatabaseSchema = cohortDatabaseSchema, nestingCohortTable = cohortTable,
+# nestingCohortId = 2, useObservationEndAsNestingEndDate = TRUE, getVisits = TRUE, getExposures =
+# FALSE, exposureDatabaseSchema = cdmDatabaseSchema, exposureTable = 'drug_era', exposureIds =
+# 1124300)
 
 saveCaseData(caseData, "s:/temp/vignetteCaseControl/caseData")
 
@@ -128,12 +119,9 @@ caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails,
                                           exposureIds = 1124300,
                                           covariateSettings = covariateSettings)
 
-# caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails,
-#                                           caseControls = caseControls,
-#                                           oracleTempSchema = oracleTempSchema,
-#                                           exposureIds = 1124300,
-#                                           covariateSettings = NULL,
-#                                           caseData = caseData)
+# caseControlsExposure <- getDbExposureData(connectionDetails = connectionDetails, caseControls =
+# caseControls, oracleTempSchema = oracleTempSchema, exposureIds = 1124300, covariateSettings = NULL,
+# caseData = caseData)
 
 saveCaseControlsExposure(caseControlsExposure, "s:/temp/vignetteCaseControl/caseControlsExposure")
 

@@ -19,8 +19,8 @@
 #' @details
 #' Fits a conditional logistic regression on the case-crossover data.
 #'
-#' @param exposureStatus  A data frame as generated using the
-#'                                \code{\link{getExposureStatus}} function.
+#' @param exposureStatus   A data frame as generated using the \code{\link{getExposureStatus}}
+#'                         function.
 #'
 #' @export
 fitCaseCrossoverModel <- function(exposureStatus) {
@@ -32,7 +32,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
 
   caseTimeControl <- any(!exposureStatus$isCase)
   if (caseTimeControl) {
-    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + exposed*isCase + strata(stratumId),
+    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + exposed * isCase + strata(stratumId),
                                               data = exposureStatus,
                                               modelType = "clr")
     treatmentVar <- "exposed:isCaseTRUE"
@@ -76,15 +76,12 @@ fitCaseCrossoverModel <- function(exposureStatus) {
   outcomeModel$outcomeModelCoefficients <- coefficients
   outcomeModel$outcomeModelStatus <- status
   outcomeCounts <- data.frame(cases = sum(exposureStatus$isCase & exposureStatus$isCaseWindow),
-                              controls = sum(!exposureStatus$isCase & exposureStatus$isCaseWindow),
-                              casesControlWindows = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow),
-                              controlsControlWindows = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow),
-                              exposedCasesCaseWindow = sum(exposureStatus$isCase & exposureStatus$isCaseWindow & exposureStatus$exposed),
-                              exposedCasesControlWindow = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow &
-                                                      exposureStatus$exposed),
-                              exposedControlsCaseWindow = sum(!exposureStatus$isCase & exposureStatus$isCaseWindow & exposureStatus$exposed),
-                              exposedControlsControlWindow = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow &
-                                                                exposureStatus$exposed))
+                              controls = sum(!exposureStatus$isCase &
+    exposureStatus$isCaseWindow), casesControlWindows = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow), controlsControlWindows = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow), exposedCasesCaseWindow = sum(exposureStatus$isCase &
+      exposureStatus$isCaseWindow & exposureStatus$exposed), exposedCasesControlWindow = sum(exposureStatus$isCase &
+      !exposureStatus$isCaseWindow & exposureStatus$exposed), exposedControlsCaseWindow = sum(!exposureStatus$isCase &
+      exposureStatus$isCaseWindow & exposureStatus$exposed), exposedControlsControlWindow = sum(!exposureStatus$isCase &
+      !exposureStatus$isCaseWindow & exposureStatus$exposed))
   outcomeModel$outcomeCounts <- outcomeCounts
   class(outcomeModel) <- "outcomeModel"
   delta <- Sys.time() - start
@@ -106,7 +103,14 @@ print.summary.outcomeModel <- function(x, ...) {
   writeLines("")
   writeLines("Counts")
   d <- x$outcomeCounts
-  colnames(d) <- c("Cases", "Controls", "Control win. (cases)", "Control win. (controls)", "Exposed case win. (cases)", "Exposed control win. (cases)", "Exposed case win. (controls)", "Exposed control win. (controls)")
+  colnames(d) <- c("Cases",
+                   "Controls",
+                   "Control win. (cases)",
+                   "Control win. (controls)",
+                   "Exposed case win. (cases)",
+                   "Exposed control win. (cases)",
+                   "Exposed case win. (controls)",
+                   "Exposed control win. (controls)")
   rownames(d) <- "Count"
 
   printCoefmat(d)

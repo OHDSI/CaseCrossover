@@ -20,9 +20,10 @@
 #' Load all data about the cases from the database.
 #'
 #' @return
-#' Returns an object of type \code{caseCrossoverData}, containing information on the cases, the nesting cohort,
-#' exposures, and optionally visits. Information about multiple outcomes can be captured at once for efficiency
-#' reasons. The generic \code{summary()} function has been implemented for this object.
+#' Returns an object of type \code{caseCrossoverData}, containing information on the cases, the
+#' nesting cohort, exposures, and optionally visits. Information about multiple outcomes can be
+#' captured at once for efficiency reasons. The generic \code{summary()} function has been implemented
+#' for this object.
 #'
 #' @param connectionDetails                   An R object of type \code{ConnectionDetails} created
 #'                                            using the function \code{createConnectionDetails} in the
@@ -60,24 +61,26 @@
 #'                                            nestingCohortTable to use as nesting cohort.
 #' @param useObservationEndAsNestingEndDate   When using a nesting cohort, should the observation
 #'                                            period end date be used instead of the cohort end date?
-#' @param getVisits                           Get data on visits? This is needed when performing a time-
-#'                                            case-control study and matching on visit
-#'                                            date is requested later on.
-#' @param exposureDatabaseSchema          The name of the database schema that is the location where
-#'                                        the exposure data used to define the exposure cohorts is
-#'                                        available. If exposureTable = DRUG_ERA,
-#'                                        exposureDatabaseSchema is not used but assumed to be
-#'                                        cdmSchema.  Requires read permissions to this database.
-#' @param exposureTable                   The tablename that contains the exposure cohorts.  If
-#'                                        exposureTable <> DRUG_ERA, then expectation is exposureTable
-#'                                        has format of COHORT table: cohort_concept_id, SUBJECT_ID,
-#'                                        COHORT_START_DATE, COHORT_END_DATE.
-#' @param exposureIds                     A list of identifiers to define the exposures of interest. If
-#'                                        exposureTable = DRUG_ERA, exposureIds should be CONCEPT_ID.
-#'                                        If exposureTable <> DRUG_ERA, exposureIds is used to select
-#'                                        the cohort_concept_id in the cohort-like table. If no
-#'                                        exposureIds are provided, all drugs or cohorts in the
-#'                                        exposureTable are included as exposures.
+#' @param getVisits                           Get data on visits? This is needed when performing a
+#'                                            time- case-control study and matching on visit date is
+#'                                            requested later on.
+#' @param exposureDatabaseSchema              The name of the database schema that is the location
+#'                                            where the exposure data used to define the exposure
+#'                                            cohorts is available. If exposureTable = DRUG_ERA,
+#'                                            exposureDatabaseSchema is not used but assumed to be
+#'                                            cdmSchema.  Requires read permissions to this database.
+#' @param exposureTable                       The tablename that contains the exposure cohorts.  If
+#'                                            exposureTable <> DRUG_ERA, then expectation is
+#'                                            exposureTable has format of COHORT table:
+#'                                            cohort_concept_id, SUBJECT_ID, COHORT_START_DATE,
+#'                                            COHORT_END_DATE.
+#' @param exposureIds                         A list of identifiers to define the exposures of
+#'                                            interest. If exposureTable = DRUG_ERA, exposureIds should
+#'                                            be CONCEPT_ID. If exposureTable <> DRUG_ERA, exposureIds
+#'                                            is used to select the cohort_concept_id in the
+#'                                            cohort-like table. If no exposureIds are provided, all
+#'                                            drugs or cohorts in the exposureTable are included as
+#'                                            exposures.
 #' @param studyStartDate                      A calendar date specifying the minimum date where data is
 #'                                            used. Date format is 'yyyymmdd'.
 #' @param studyEndDate                        A calendar date specifying the maximum date where data is
@@ -134,9 +137,10 @@ getDbCaseCrossoverData <- function(connectionDetails,
 #' @description
 #' \code{saveCaseCrossoverData} saves an object of type caseCrossoverData to folder.
 #'
-#' @param caseCrossover   An object of type \code{caseCrossoverData} as generated using \code{\link{getDbCaseCrossoverData}}.
-#' @param folder     The name of the folder where the data will be written. The folder should not yet
-#'                   exist.
+#' @param caseCrossover   An object of type \code{caseCrossoverData} as generated using
+#'                        \code{\link{getDbCaseCrossoverData}}.
+#' @param folder          The name of the folder where the data will be written. The folder should not
+#'                        yet exist.
 #'
 #' @details
 #' The data will be written to a set of files in the specified folder.
@@ -179,7 +183,8 @@ saveCaseCrossoverData <- function(caseCrossoverData, folder) {
 #' Load the case data from a folder
 #'
 #' @description
-#' \code{loadCaseCrossoverData} loads an object of type caseCrossoverData from a folder in the file system.
+#' \code{loadCaseCrossoverData} loads an object of type caseCrossoverData from a folder in the file
+#' system.
 #'
 #' @param folder     The name of the folder containing the data.
 #' @param readOnly   If true, the data is opened read only.
@@ -228,7 +233,8 @@ print.caseCrossoverData <- function(x, ...) {
   if (x$metaData$nestingCohortId != -1) {
     writeLines(paste("Nesting cohort ID:", x$metaData$nestingCohortId))
   }
-  writeLines(paste("Exposure concept ID(s):", paste(ff::as.ram(ffbase::unique.ff(x$exposures$exposureId)), collapse = ",")))
+  writeLines(paste("Exposure concept ID(s):",
+                   paste(ff::as.ram(ffbase::unique.ff(x$exposures$exposureId)), collapse = ",")))
 }
 
 #' @export
@@ -253,7 +259,7 @@ summary.caseCrossoverData <- function(object, ...) {
 
   exposureCounts <- data.frame(exposureId = ff::as.ram(ffbase::unique.ff(object$exposures$exposureId)),
                                exposureCount = 0,
-                              personCount = 0)
+                               personCount = 0)
   for (i in 1:nrow(exposureCounts)) {
     exposures <- object$exposures[object$exposures$exposureId == exposureCounts$exposureId]
     exposureCounts$exposureCount[i] <- nrow(exposures)

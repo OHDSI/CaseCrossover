@@ -17,13 +17,13 @@
 #' Get the exposure status for cases (and controls).
 #'
 #' @details
-#' This function determines the exposure status for a give, exposure ID in various windows relative to the
-#' index date.
+#' This function determines the exposure status for a give, exposure ID in various windows relative to
+#' the index date.
 #'
-#' @param subjects                A data frame as generated using the
-#'                                \code{\link{selectSubjectsToInclude}} function.
-#' @param caseCrossoverData       An object of type \code{caseCrossoverData} as generated using the
-#'                                \code{\link{getDbCasecrossoverData}} function.
+#' @param subjects               A data frame as generated using the
+#'                               \code{\link{selectSubjectsToInclude}} function.
+#' @param caseCrossoverData      An object of type \code{caseCrossoverData} as generated using the
+#'                               \code{\link{getDbCasecrossoverData}} function.
 #' @param riskWindowStart        The start of the risk window (in days) relative to the index date.
 #'                               This number should be non-positive.
 #' @param riskWindowEnd          The end of the risk window (in days) relative to the index date. This
@@ -33,8 +33,8 @@
 #' @return
 #' A data frame with these columns: \describe{ \item{personId}{The person ID} \item{indexDate}{The
 #' index date} \item{isCase}{Is the person a case or a control?} \item{stratumId}{The ID linking cases
-#' and controls in a matched set} \item{isCaseWindow}{Is this a case window (as opposed to a control window)?}
-#' \item{exposed}{Was the person exposed during the window?}}
+#' and controls in a matched set} \item{isCaseWindow}{Is this a case window (as opposed to a control
+#' window)?} \item{exposed}{Was the person exposed during the window?}}
 #'
 #' @export
 getExposureStatus <- function(subjects,
@@ -60,7 +60,7 @@ getExposureStatus <- function(subjects,
   windows$isCaseWindow <- TRUE
 
   # Create control windows (remove those outside of observation):
-  for (offset in controlWindowOffsets){
+  for (offset in controlWindowOffsets) {
     controlWindows <- subjects
     controlWindows$start <- controlWindows$indexDate + riskWindowStart + offset
     controlWindows$end <- controlWindows$indexDate + riskWindowEnd + offset
