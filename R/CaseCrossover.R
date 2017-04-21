@@ -19,6 +19,7 @@
 #' @docType package
 #' @name CaseCrossover
 #' @importFrom stats coef confint pnorm printCoefmat qnorm
+#' @importFrom survival strata
 #' @import DatabaseConnector
 NULL
 

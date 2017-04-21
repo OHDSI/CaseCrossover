@@ -19,19 +19,19 @@
 # This code should be used to fetch the data that is used in the vignettes.
 library(SqlRender)
 library(DatabaseConnector)
-library(CaseControl)
+library(CaseCrossover)
 options(fftempdir = "s:/fftemp")
 
 pw <- NULL
 dbms <- "pdw"
 user <- NULL
 server <- "JRDUSAPSCTL01"
-cdmDatabaseSchema <- "CDM_Truven_MDCD_V417.dbo"
+cdmDatabaseSchema <- "cdm_truven_mdcd_v521.dbo"
 cohortDatabaseSchema <- "scratch.dbo"
-cohortTable <- "mschuemi_sccs_vignette"
 oracleTempSchema <- NULL
-outputFolder <- "s:/temp/vignetteCaseControl2"
+cohortTable <- "mschuemi_cc_vignette"
 port <- 17001
+outputFolder <- "s:/temp/vignetteCaseCrossover2"
 
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
@@ -57,6 +57,7 @@ sql <- SqlRender::renderSql(sql,
                             cohortTable = cohortTable)$sql
 sql <- SqlRender::translateSql(sql, targetDialect = connectionDetails$dbms)$sql
 DatabaseConnector::querySql(connection, sql)
+RJDBC::dbDisconnect(connection)
 
 negativeControls <- c(705178,
                       705944,
@@ -94,87 +95,69 @@ for (exposureId in c(diclofenac, negativeControls)) {
   exposureOutcomeNcList[[length(exposureOutcomeNcList) + 1]] <- exposureOutcomeNc
 }
 
-getDbCaseDataArgs1 <- createGetDbCaseDataArgs(useNestingCohort = FALSE, getVisits = FALSE)
+getDbCaseCrossoverDataArgs1 <- createGetDbCaseCrossoverDataArgs(useNestingCohort = FALSE)
 
-selectControlsArgs1 <- createSelectControlsArgs(firstOutcomeOnly = FALSE,
-                                                washoutPeriod = 180,
-                                                controlsPerCase = 2,
-                                                matchOnAge = TRUE,
-                                                ageCaliper = 2,
-                                                matchOnGender = TRUE,
-                                                matchOnProvider = FALSE,
-                                                matchOnVisitDate = FALSE)
+selectSubjectsToIncludeArgs1 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
+                                                                  washoutPeriod = 180)
 
-getDbExposureDataArgs1 <- createGetDbExposureDataArgs()
+getExposureStatusArgs1 <- createGetExposureStatusArgs(firstExposureOnly = FALSE,
+                                                      riskWindowStart = 0,
+                                                      riskWindowEnd = 0,
+                                                      controlWindowOffsets = -30)
 
-createCaseControlDataArgs1 <- createCreateCaseControlDataArgs(firstExposureOnly = FALSE,
-                                                              riskWindowStart = 0,
-                                                              riskWindowEnd = 0)
-fitCaseControlModelArgs1 <- createFitCaseControlModelArgs()
+ccrAnalysis1 <- createCcrAnalysis(analysisId = 1,
+                                 description = "Simple case-crossover",
+                                 getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs1,
+                                 selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                 getExposureStatusArgs = getExposureStatusArgs1)
 
-ccAnalysis1 <- createCcAnalysis(analysisId = 1,
-                                description = "Matching on age and gender",
-                                getDbCaseDataArgs = getDbCaseDataArgs1,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
+getDbCaseCrossoverDataArgs2 <- createGetDbCaseCrossoverDataArgs(useNestingCohort = TRUE,
+                                                       getTimeControlData = TRUE,
+                                                       getVisits = TRUE)
 
-getDbCaseDataArgs2 <- createGetDbCaseDataArgs(useNestingCohort = TRUE, getVisits = TRUE)
+ccrAnalysis2 <- createCcrAnalysis(analysisId = 2,
+                                description = "Nested case-crossover",
+                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                getExposureStatusArgs = getExposureStatusArgs1)
 
-ccAnalysis2 <- createCcAnalysis(analysisId = 2,
-                                description = "Matching on age and gender, nesting in indication",
-                                getDbCaseDataArgs = getDbCaseDataArgs2,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
+matchingCriteria1 <- createMatchingCriteria(matchOnAge = TRUE,
+                                           ageCaliper = 2,
+                                           matchOnGender = TRUE)
 
-covariateSettings <- createCovariateSettings(useCovariateRiskScores = TRUE,
-                                             useCovariateRiskScoresCharlson = TRUE,
-                                             useCovariateRiskScoresDCSI = TRUE,
-                                             useCovariateRiskScoresCHADS2 = TRUE)
+selectSubjectsToIncludeArgs2 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
+                                                                  washoutPeriod = 180,
+                                                                  matchingCriteria = matchingCriteria1)
 
-getDbExposureDataArgs2 <- createGetDbExposureDataArgs(covariateSettings = covariateSettings)
+ccrAnalysis3 <- createCcrAnalysis(analysisId = 3,
+                                description = "Nested case-time-control, matching on age and gender",
+                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs2,
+                                getExposureStatusArgs = getExposureStatusArgs1)
 
-fitCaseControlModelArgs2 <- createFitCaseControlModelArgs(useCovariates = TRUE,
-                                                          prior = createPrior("none"))
+matchingCriteria2 <- createMatchingCriteria(matchOnAge = TRUE,
+                                            ageCaliper = 2,
+                                            matchOnGender = TRUE,
+                                            matchOnVisitDate = TRUE)
 
-ccAnalysis3 <- createCcAnalysis(analysisId = 3,
-                                description = "Matching on age and gender, nesting in indication, using covars",
-                                getDbCaseDataArgs = getDbCaseDataArgs2,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs2,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
+selectSubjectsToIncludeArgs3 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
+                                                                  washoutPeriod = 180,
+                                                                  matchingCriteria = matchingCriteria2)
 
-selectControlsArgs2 <- createSelectControlsArgs(firstOutcomeOnly = FALSE,
-                                                washoutPeriod = 180,
-                                                controlsPerCase = 2,
-                                                matchOnAge = TRUE,
-                                                ageCaliper = 2,
-                                                matchOnGender = TRUE,
-                                                matchOnProvider = FALSE,
-                                                matchOnVisitDate = TRUE,
-                                                visitDateCaliper = 30)
+ccrAnalysis4 <- createCcrAnalysis(analysisId = 4,
+                                description = "Nested case-time-control, matching on age, gender, and visit",
+                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs3,
+                                getExposureStatusArgs = getExposureStatusArgs1)
 
-ccAnalysis4 <- createCcAnalysis(analysisId = 4,
-                                description = "Matching on age, gender and visit, nesting in indication, using covars",
-                                getDbCaseDataArgs = getDbCaseDataArgs2,
-                                selectControlsArgs = selectControlsArgs2,
-                                getDbExposureDataArgs = getDbExposureDataArgs2,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
-
-ccAnalysisList <- list(ccAnalysis1, ccAnalysis2, ccAnalysis3, ccAnalysis4)
+ccrAnalysisList <- list(ccrAnalysis1, ccrAnalysis2, ccrAnalysis3, ccrAnalysis4)
 
 saveExposureOutcomeNestingCohortList(exposureOutcomeNcList,
-                                     "s:/temp/vignetteCaseControl2/exposureOutcomeNestingCohortList.txt")
-saveCcAnalysisList(ccAnalysisList, "s:/temp/vignetteCaseControl2/ccAnalysisList.txt")
+                                     "s:/temp/vignetteCaseCrossover2/exposureOutcomeNestingCohortList.txt")
+saveCcrAnalysisList(ccrAnalysisList, "s:/temp/vignetteCaseCrossover2/ccrAnalysisList.txt")
 
-# exposureOutcomeNcList <-
-# loadExposureOutcomeNestingCohortList('s:/temp/vignetteCaseControl2/exposureOutcomeNestingCohortList.txt')
-# ccAnalysisList <- loadCcAnalysisList('s:/temp/vignetteCaseControl2/ccAnalysisList.txt')
+# exposureOutcomeNcList <- loadExposureOutcomeNestingCohortList('s:/temp/vignetteCaseCrossover2/exposureOutcomeNestingCohortList.txt')
+# ccrAnalysisList <- loadCcrAnalysisList('s:/temp/vignetteCaseCrossover2/ccrAnalysisList.txt')
 
 outcomeDatabaseSchema <- cohortDatabaseSchema
 outcomeTable <- cohortTable
@@ -182,14 +165,14 @@ nestingCohortDatabaseSchema <- cohortDatabaseSchema
 nestingCohortTable <- cohortTable
 exposureDatabaseSchema <- cdmDatabaseSchema
 exposureTable <- "drug_era"
-getDbCaseDataThreads <- 1
-selectControlsThreads <- 1
-getDbExposureDataThreads <- 1
-createCaseControlDataThreads <- 1
-fitCaseControlModelThreads <- 1
+getDbCaseCrossoverDataThreads = 1
+selectSubjectsToIncludeThreads = 1
+getExposureStatusThreads = 1
+fitCaseCrossoverModelThreads = 1
 exposureOutcomeNestingCohortList <- exposureOutcomeNcList
 
-result <- runCcAnalyses(connectionDetails = connectionDetails,
+
+result <- runCcrAnalyses(connectionDetails = connectionDetails,
                         cdmDatabaseSchema = cdmDatabaseSchema,
                         oracleTempSchema = cdmDatabaseSchema,
                         exposureDatabaseSchema = cdmDatabaseSchema,
@@ -200,19 +183,17 @@ result <- runCcAnalyses(connectionDetails = connectionDetails,
                         nestingCohortTable = cohortTable,
                         outputFolder = outputFolder,
                         exposureOutcomeNestingCohortList = exposureOutcomeNcList,
-                        ccAnalysisList = ccAnalysisList,
-                        getDbCaseDataThreads = 1,
-                        selectControlsThreads = 4,
-                        getDbExposureDataThreads = 3,
-                        createCaseControlDataThreads = 4,
-                        fitCaseControlModelThreads = 4,
-                        cvThreads = 10)
+                        ccrAnalysisList = ccrAnalysisList,
+                        getDbCaseCrossoverDataThreads = 1,
+                        selectSubjectsToIncludeThreads = 4,
+                        getExposureStatusThreads = 3,
+                        fitCaseCrossoverModelThreads = 4)
 
 # result <- readRDS('s:/temp/sccsVignette2/outcomeModelReference.rds')
 
-analysisSum <- summarizeCcAnalyses(result)
-saveRDS(analysisSum, "s:/temp/sccsVignette2/analysisSummary.rds")
+analysisSum <- summarizeCcrAnalyses(result)
+saveRDS(analysisSum, "s:/temp/vignetteCaseCrossover2/analysisSummary.rds")
 
 x <- readRDS(result$modelFile[1])
 summary(x)
-max(x$exposed)
+

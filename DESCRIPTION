@@ -9,12 +9,14 @@ Description: An R package for performing case-crossover and case-time-control an
 VignetteBuilder: knitr
 Depends:
     R (>= 3.2.2),
-    DatabaseConnector (>= 1.3.0)
+    DatabaseConnector (>= 1.3.0),
+    survival
 Imports:
     Cyclops (>= 1.2.2),
     ff,
     ffbase (>= 0.12.1),
-    CaseControl (>= 1.3.0)
+    CaseControl (>= 1.3.0),
+    OhdsiRTools
 Suggests:
     testthat,
     knitr,
