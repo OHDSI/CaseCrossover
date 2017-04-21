@@ -90,7 +90,7 @@ getExposureStatus <- function(subjects,
 
   # Determine exposure status
   temp <- merge(windows, subset)
-  temp <- temp$rowId[temp$exposureEndDate >= temp$start & temp$exposureEndDate <= temp$end]
+  temp <- temp$rowId[temp$exposureEndDate >= temp$start & temp$exposureStartDate <= temp$end]
 
   windows$exposed <- 0
   windows$exposed[windows$rowId %in% temp] <- 1

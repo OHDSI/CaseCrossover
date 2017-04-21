@@ -1,5 +1,5 @@
 ---
-title: "Running multiple analyses at once using the CaseControl package"
+title: "Running multiple analyses at once using the CaseCrossover package"
 author: "Martijn J. Schuemie"
 date: "`r Sys.Date()`"
 output:
@@ -10,16 +10,14 @@ output:
     number_sections: yes
     toc: yes
 vignette: >
-  %\VignetteIndexEntry{Multiple analyses using CaseControl}
+  %\VignetteIndexEntry{Multiple analyses using CaseCrossover}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
-library(CaseControl)
-if (file.exists("S:/temp"))
-  setwd("s:/temp")
+library(CaseCrossover)
 knitr::opts_chunk$set(
   cache=FALSE,
   comment = "#>",
@@ -30,7 +28,7 @@ knitr::opts_chunk$set(
 
 In this vignette we focus on running several different analyses on several exposure-outcome-nesting cohort triplets This can be useful when we want to explore the sensitivity to analyses choices, include controls, or run an experiment similar to the OMOP experiment to empirically identify the optimal analysis choices for a particular research question.
 
-This vignette assumes you are already familiar with the `CaseControl` package and are able to perform single studies. We will walk through all the steps needed to perform an exemplar set of analyses, and we have selected the well-studied topic of the effect of nonsteroidal anti-inflammatory drugs (NSAIDs) on gastrointestinal (GI) bleeding-related hospitalization. For simplicity, we focus on one NSAID: diclofenac. We will execute various variations of an analysis for the primary exposure pair and a large set of negative control exposures.
+This vignette assumes you are already familiar with the `CaseCrossover` package and are able to perform single studies. We will walk through all the steps needed to perform an exemplar set of analyses, and we have selected the well-studied topic of the effect of nonsteroidal anti-inflammatory drugs (NSAIDs) on gastrointestinal (GI) bleeding-related hospitalization. For simplicity, we focus on one NSAID: diclofenac. We will execute various variations of an analysis for the primary exposure pair and a large set of negative control exposures.
 
 # General approach
 
@@ -38,25 +36,24 @@ The general approach to running a set of analyses is that you specify all the fu
 
 An analysis will be executed by calling these functions in sequence:
 
-1. `getDbCaseData()`
-2. `selectControls()`
-3. `getDbExposureData()`
-4. `createCaseControlData()` 
-5. `fitCaseControlModel()` 
+1. `getDbCaseCrossoverData()`
+2. `selectSubjectsToInclude()`
+3. `getExposureStatus()`
+4. `fitCaseCrossoverModel()` 
 
 
-When you provide several analyses to the `CaseControl` package, it will determine whether any of the analyses and exposure-outcome-nesting triplets cohort triplets have anything in common, and will take advantage of this fact. For example, if we specify several exposure-outcome-nesting triplets with the same outcome and nesting cohort, the data for the cases will be extracted only once.
+When you provide several analyses to the `CaseCrossover` package, it will determine whether any of the analyses and exposure-outcome-nesting triplets cohort triplets have anything in common, and will take advantage of this fact. For example, if we specify several exposure-outcome-nesting triplets with the same outcome and nesting cohort, the data for the cases will be extracted only once.
 
 The function arguments you need to define have been divided into four groups:
 
-1. **Hypothesis of interest**: arguments that are specific to a hypothesis of interest, in the case of the case-control design this is a combination of exposure, outcome, and optionally a cohort in which the analysis is nested.
-2. **Analyses**: arguments that are not directly specific to a hypothesis of interest, such as the washout window, number of controls per case, whether to match on age and gender, etc.
-3. Arguments that are the output of a previous function in the `CaseControl` package, such as the `caseData` argument of the `selectControls` function. These cannot be specified by the user.
+1. **Hypothesis of interest**: arguments that are specific to a hypothesis of interest, in the case of the case-crossover design this is a combination of exposure, outcome, and optionally a cohort in which the analysis is nested.
+2. **Analyses**: arguments that are not directly specific to a hypothesis of interest, such as the washout window, whether to focus on first outcomes or all, or whether to adjust for time trends in exposure.
+3. Arguments that are the output of a previous function in the `CaseCrossover` package, such as the `caseCrossoverData` argument of the `selectSubjectsToInclude` function. These cannot be specified by the user.
 4. Arguments that are specific to an environment, such as the connection details for connecting to the server, and the name of the schema holding the CDM data.
 
 # Preparation for the example
 
-We need to tell R how to connect to the server where the data are. `CaseControl` uses the `DatabaseConnector` package, which provides the `createConnectionDetails` function. Type `?createConnectionDetails` for the specific settings required for the various database management systems (DBMS). For example, one might connect to a PostgreSQL database using this code:
+We need to tell R how to connect to the server where the data are. `CaseCrossover` uses the `DatabaseConnector` package, which provides the `createConnectionDetails` function. Type `?createConnectionDetails` for the specific settings required for the various database management systems (DBMS). For example, one might connect to a PostgreSQL database using this code:
 
 ```{r tidy=FALSE,eval=TRUE}
 connectionDetails <- createConnectionDetails(dbms = "postgresql", 
@@ -71,7 +68,7 @@ cohortTable <- "vignette_cohorts"
 
 The last two lines define the `cdmDatabaseSchema` and `cohortDatabaseSchema` variables. We'll use these later to tell R where the data in CDM format live, and where we want to store the outcome and nesting cohorts. Note that for Microsoft SQL Server, databaseschemas need to specify both the database and the schema, so for example `cdmDatabaseSchema <- "my_cdm_data.dbo"`.
 
-We also need to prepare our exposures, outcomes and nesting cohorts of interest. The `drug_era` table in the OMOP Common Data Model already contains prespecified cohorts of users at the ingredient level, so we will use that for the exposures. For the outcomes, we want to restrict our analysis only to those events that are recorded in an inpatient setting, so we will need to create a custom cohort table. For this example, we are only interested in GI bleed (concept ID 192671). Some of the analyses we'd like to nest in a population with previous diagnoses of rheumatoid arthritis, so we will need to create a custom cohort for this as well.
+We also need to prepare our exposures, outcomes and nesting cohorts of interest. The `drug_era` table in the OMOP Common Data Model already contains prespecified cohorts of users at the ingredient level, so we will use that for the exposures here. Note that we can also use custom-defined exposure cohorts, such as those created in ATLAS. For the outcomes, we want to restrict our analysis only to those events that are recorded in an inpatient setting, so we will need to create a custom cohort table. For this example, we are only interested in GI bleed (concept ID 192671). Some of the analyses we'd like to nest in a population with previous diagnoses of rheumatoid arthritis, so we will need to create a custom cohort for this as well.
 
 We create a text file called *vignette.sql* with the following content:
 
@@ -178,27 +175,18 @@ A convenient way to save `exposureOutcomeNcList` to file is by using the `saveEx
 
 # Specifying analyses
 
-The second group of arguments are not specific to a hypothesis of interest, and comprise the majority of arguments. For each function that will be called during the execution of the analyses, a companion function is available that has (almost) the same arguments. For example, for the `getDbCaseData()` function there is the `createGetDbCaseDataArgs()` function. These companion functions can be used to create the arguments to be used during execution:
+The second group of arguments are not specific to a hypothesis of interest, and comprise the majority of arguments. For each function that will be called during the execution of the analyses, a companion function is available that has (almost) the same arguments. For example, for the `getDbCaseCrossoverData()` function there is the `createGetDbCaseCrossoverDataArgs()` function. These companion functions can be used to create the arguments to be used during execution:
 
 ```{r tidy=FALSE,eval=TRUE}
-getDbCaseDataArgs1 <- createGetDbCaseDataArgs(useNestingCohort = FALSE,
-                                             getVisits = FALSE)
+getDbCaseCrossoverDataArgs1 <- createGetDbCaseCrossoverDataArgs(useNestingCohort = FALSE)
 
-selectControlsArgs1 <- createSelectControlsArgs(firstOutcomeOnly = FALSE,
-                                                washoutPeriod = 180,
-                                                controlsPerCase = 2,
-                                                matchOnAge = TRUE,
-                                                ageCaliper = 2,
-                                                matchOnGender = TRUE,
-                                                matchOnProvider = FALSE,
-                                                matchOnVisitDate = FALSE)
+selectSubjectsToIncludeArgs1 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
+                                                                  washoutPeriod = 180)
 
-getDbExposureDataArgs1 <- createGetDbExposureDataArgs()
-
-createCaseControlDataArgs1 <- createCreateCaseControlDataArgs(firstExposureOnly = FALSE,
-                                                              riskWindowStart = 0,
-                                                              riskWindowEnd = 0)
-fitCaseControlModelArgs1 <- createFitCaseControlModelArgs()
+getExposureStatusArgs1 <- createGetExposureStatusArgs(firstExposureOnly = FALSE,
+                                                      riskWindowStart = 0,
+                                                      riskWindowEnd = 0,
+                                                      controlWindowOffsets = -30)
 ```
 
 Any argument that is not explicitly specified by the user will assume the default value specified in the function. Note that in this example, even though we specified a nesting cohort for each exposure-outcome-nesting cohort triplet, we have specified `useNestingCohort = FALSE`, meaning we will not nest this analysis but rather use the entire population to draw cases and controls.
@@ -206,75 +194,65 @@ Any argument that is not explicitly specified by the user will assume the defaul
 We can now combine the arguments for the various functions into a single analysis:
 
 ```{r tidy=FALSE,eval=TRUE}
-ccAnalysis1 <- createCcAnalysis(analysisId = 1,
-                                description = "Matching on age and gender",
-                                getDbCaseDataArgs = getDbCaseDataArgs1,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
+ccrAnalysis1 <- createCcrAnalysis(analysisId = 1,
+                                 description = "Simple case-crossover",
+                                 getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs1,
+                                 selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                 getExposureStatusArgs = getExposureStatusArgs1)
 ```
 
 Note that we have assigned an analysis ID (1) to this set of arguments. We can use this later to link the results back to this specific set of choices. We also include a short description of the analysis.
 
-We can easily create more analyses, for example by using nesting and matching on visit dates:
+We can easily create more analyses, for example by using nesting and correcting for time trends in exposure (the time-case-control design):
 
 ```{r tidy=FALSE,eval=TRUE}
-getDbCaseDataArgs2 <- createGetDbCaseDataArgs(useNestingCohort = TRUE,
-                                              getVisits = TRUE)
+getDbCaseCrossoverDataArgs2 <- createGetDbCaseCrossoverDataArgs(useNestingCohort = TRUE,
+                                                       getTimeControlData = TRUE,
+                                                       getVisits = TRUE)
 
-ccAnalysis2 <- createCcAnalysis(analysisId = 2,
-                                description = "Matching on age and gender, nesting in indication",
-                                getDbCaseDataArgs = getDbCaseDataArgs2,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
+ccrAnalysis2 <- createCcrAnalysis(analysisId = 2,
+                                description = "Nested case-crossover",
+                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                getExposureStatusArgs = getExposureStatusArgs1)
 
-covariateSettings <- createCovariateSettings(useCovariateRiskScores = TRUE,
-                                             useCovariateRiskScoresCharlson = TRUE,
-                                             useCovariateRiskScoresDCSI = TRUE,
-                                             useCovariateRiskScoresCHADS2 = TRUE)
+matchingCriteria1 <- createMatchingCriteria(matchOnAge = TRUE,
+                                           ageCaliper = 2,
+                                           matchOnGender = TRUE)
 
-getDbExposureDataArgs2 <- createGetDbExposureDataArgs(covariateSettings = covariateSettings)
+selectSubjectsToIncludeArgs2 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
+                                                                  washoutPeriod = 180,
+                                                                  matchingCriteria = matchingCriteria1)
 
-fitCaseControlModelArgs2 <- createFitCaseControlModelArgs(useCovariates = TRUE,
-                                                          prior = createPrior("none"))
+ccrAnalysis3 <- createCcrAnalysis(analysisId = 3,
+                                description = "Nested case-time-control, matching on age and gender",
+                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs2,
+                                getExposureStatusArgs = getExposureStatusArgs1)
 
-ccAnalysis3 <- createCcAnalysis(analysisId = 3,
-                                description = "Matching on age and gender, nesting in indication, using covars",
-                                getDbCaseDataArgs = getDbCaseDataArgs2,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs2,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
+matchingCriteria2 <- createMatchingCriteria(matchOnAge = TRUE,
+                                            ageCaliper = 2,
+                                            matchOnGender = TRUE,
+                                            matchOnVisitDate = TRUE)
 
-selectControlsArgs2 <- createSelectControlsArgs(firstOutcomeOnly = FALSE,
-                                                washoutPeriod = 180,
-                                                controlsPerCase = 2,
-                                                matchOnAge = TRUE,
-                                                ageCaliper = 2,
-                                                matchOnGender = TRUE,
-                                                matchOnProvider = FALSE,
-                                                matchOnVisitDate = TRUE,
-                                                visitDateCaliper = 30)
+selectSubjectsToIncludeArgs3 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
+                                                                  washoutPeriod = 180,
+                                                                  matchingCriteria = matchingCriteria2)
 
-ccAnalysis4 <- createCcAnalysis(analysisId = 4,
-                                description = "Matching on age, gender and visit, nesting in indication, using covars",
-                                getDbCaseDataArgs = getDbCaseDataArgs2,
-                                selectControlsArgs = selectControlsArgs2,
-                                getDbExposureDataArgs = getDbExposureDataArgs2,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs2)
+ccrAnalysis4 <- createCcrAnalysis(analysisId = 4,
+                                description = "Nested case-time-control, matching on age, gender, and visit",
+                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs3,
+                                getExposureStatusArgs = getExposureStatusArgs1)
 ```
 
 These analyses can be combined in a list:
 
 ```{r tidy=FALSE,eval=TRUE}
-ccAnalysisList <- list(ccAnalysis1, ccAnalysis2, ccAnalysis3, ccAnalysis4)
+ccrAnalysisList <- list(ccrAnalysis1, ccrAnalysis2, ccrAnalysis3, ccrAnalysis4)
 ```
 
-A convenient way to save `ccAnalysisList` to file is by using the `saveCcAnalysisList` function, and we can load it again using the `loadCcAnalysisList` function.
+A convenient way to save `ccrAnalysisList` to file is by using the `saveCcrAnalysisList` function, and we can load it again using the `loadCcrAnalysisList` function.
 
 ## Exposure, outcome, and nesting cohort selection strategies
 
@@ -294,25 +272,21 @@ exposureOutcomeNc <- createExposureOutcomeNestingCohort(exposureId = 1124300,
 When we specify an analysis, we can then refer to one definition or the other:
 
 ```{r tidy=FALSE,eval=TRUE}
-ccAnalysis1A <- createCcAnalysis(analysisId = 1,
-                                description = "Matching on age and gender, using narrow def.",
-                                outcomeType = "narrowDefinition",
-                                getDbCaseDataArgs = getDbCaseDataArgs1,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
+ccrAnalysis1A <- createCcrAnalysis(analysisId = 1,
+                                 description = "Simple case-crossover, using narrow def.",
+                                 outcomeType = "narrowDefinition",
+                                 getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs1,
+                                 selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                 getExposureStatusArgs = getExposureStatusArgs1)
 
-ccAnalysis1B <- createCcAnalysis(analysisId = 2,
-                                description = "Matching on age and gender, using broad def.",
-                                outcomeType = "broadDefinition",
-                                getDbCaseDataArgs = getDbCaseDataArgs1,
-                                selectControlsArgs = selectControlsArgs1,
-                                getDbExposureDataArgs = getDbExposureDataArgs1,
-                                createCaseControlDataArgs = createCaseControlDataArgs1,
-                                fitCaseControlModelArgs = fitCaseControlModelArgs1)
+ccrAnalysis1B <- createCcrAnalysis(analysisId = 2,
+                                 description = "Simple case-crossover, using broad def.",
+                                 outcomeType = "broadDefinition",
+                                 getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs1,
+                                 selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                 getExposureStatusArgs = getExposureStatusArgs1)
 
-ccAnalysisList2 <- list(ccAnalysis1A, ccAnalysis1B)
+ccrAnalysisList2 <- list(ccrAnalysis1A, ccrAnalysis1B)
 ```
 
 In this example, the first analysis (analysisId = 1) will use cohort definition 1 as outcome, whilst the second analysis analysis (analysisId = 2) will use cohort definition 11 as outcome.
@@ -321,10 +295,10 @@ The same mechanism can be used to specifiy types for the exposureId and nestingC
 
 # Executing multiple analyses
 
-We can now run the analyses against the hypotheses of interest using the `runCcAnalyses()`function. This function will run all specified analyses against all hypotheses of interest, meaning that the total number of outcome models is `length(ccAnalysisList) * length(exposureOutcomeNcList)`.
+We can now run the analyses against the hypotheses of interest using the `runCcrAnalyses()`function. This function will run all specified analyses against all hypotheses of interest, meaning that the total number of outcome models is `length(ccrAnalysisList) * length(exposureOutcomeNcList)`.
 
 ```{r tidy=FALSE,eval=FALSE}
-result <- runCcAnalyses(connectionDetails = connectionDetails,
+result <- runCcrAnalyses(connectionDetails = connectionDetails,
                         cdmDatabaseSchema = cdmDatabaseSchema,
                         oracleTempSchema = cdmDatabaseSchema,
                         exposureDatabaseSchema = cdmDatabaseSchema,
@@ -333,60 +307,58 @@ result <- runCcAnalyses(connectionDetails = connectionDetails,
                         outcomeTable = cohortTable,
                         nestingCohortDatabaseSchema = cohortDatabaseSchema,
                         nestingCohortTable = cohortTable,
-                        outputFolder = "s:/temp/output",
+                        outputFolder = outputFolder,
                         exposureOutcomeNestingCohortList = exposureOutcomeNcList,
-                        ccAnalysisList = ccAnalysisList,
-                        getDbCaseDataThreads = 1,
-                        selectControlsThreads = 2,
-                        getDbExposureDataThreads = 3,
-                        createCaseControlDataThreads = 5,
-                        fitCaseControlModelThreads = 5,
-                        cvThreads = 3)
+                        ccrAnalysisList = ccrAnalysisList,
+                        getDbCaseCrossoverDataThreads = 1,
+                        selectSubjectsToIncludeThreads = 4,
+                        getExposureStatusThreads = 3,
+                        fitCaseCrossoverModelThreads = 4)
 ```
 
-In the code above, we provide the arguments for connecting to the database, which schemas and tables to use, as well as the analyses and hypotheses of interest. The `outputFolder` specifies where the outcome models and intermediate files will be written. We also instruct `CaseControl` to use multiple threads for various stages in the analyses, meaning these will be executed in parallel on multiple CPUs in the computer. Multithreading can significantly reduce execution time, but will require more system resources such as memory and temporary disk space. 
+In the code above, we provide the arguments for connecting to the database, which schemas and tables to use, as well as the analyses and hypotheses of interest. The `outputFolder` specifies where the outcome models and intermediate files will be written. We also instruct `CaseCrossover` to use multiple threads for various stages in the analyses, meaning these will be executed in parallel on multiple CPUs in the computer. Multithreading can significantly reduce execution time, but will require more system resources such as memory and temporary disk space. 
 
 ## Restarting
 
-If for some reason the execution was interrupted, you can restart by re-issuing the `runCcAnalyses()` command. Any intermediate and final products that have already been completed and written to disk will be skipped.
+If for some reason the execution was interrupted, you can restart by re-issuing the `runCcrAnalyses()` command. Any intermediate and final products that have already been completed and written to disk will be skipped.
 
 # Retrieving the results
 
-The result of the `runCcAnalyses()` is a data frame with one row per exposure-outcome-nesting cohort-analysis combination. It provides the file names of the intermediate and end-result files that were constructed. For example, we can retrieve the fitted model for the combination of our drug of interest,  outcome, and first analysis:
+The result of the `runCcrAnalyses()` is a data frame with one row per exposure-outcome-nesting cohort-analysis combination. It provides the file names of the intermediate and end-result files that were constructed. For example, we can retrieve the fitted model for the combination of our drug of interest,  outcome, and first analysis:
 
 ```{r tidy=FALSE,eval=FALSE}
-ccModelFile <- result$modelFile[result$exposureId == 1124300 & 
-                                  result$outcomeId == 1 &
-                                  result$analysisId == 1]
-ccModel <- readRDS(ccModelFile)
-summary(ccModel)
+ccrModelFile <- result$modelFile[result$exposureId == 1124300 & 
+                                   result$outcomeId == 1 &
+                                   result$analysisId == 1]
+ccModel <- readRDS(ccrModelFile)
+summary(ccrModel)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
-  result <- readRDS("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")
-  ccModelFile <- result$modelFile[result$exposureId == 1124300 & 
-                                    result$outcomeId == 1 &
-                                    result$analysisId == 1]
-  ccModel <- readRDS(ccModelFile)
-  summary(ccModel)
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+  result <- readRDS("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")
+  ccrModelFile <- result$modelFile[result$exposureId == 1124300 & 
+                                     result$outcomeId == 1 &
+                                     result$analysisId == 1]
+  ccrModel <- readRDS(ccrModelFile)
+  summary(ccrModel)
 }
 ```
 
-Note that some of the file names will appear several times in the table. For example, all analysis share the same ccData object.
+Note that some of the file names will appear several times in the table. For example, analyses 2-4 share the same ccrData object.
 
-We can create a summary of the results using `summarizeCcAnalyses()`:
+We can create a summary of the results using `summarizeCcrAnalyses()`:
 ```{r tidy=FALSE,eval=FALSE}
-analysisSum <- summarizeCcAnalyses(result)
+analysisSum <- summarizeCcrAnalyses(result)
 head(analysisSum)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
-  analysisSum <- summarizeCcAnalyses(result)
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+  analysisSum <- summarizeCcrAnalyses(result)
   head(analysisSum)
 }
 ```
 
-This tells us, per exposure-outcome-nesting cohort-analysis combination, the estimated relative risk and 95% confidence interval, as well as the number of cases, controls, and number of those that were exposed to the drug.
+This tells us, per exposure-outcome-nesting cohort-analysis combination, the estimated relative risk and 95% confidence interval, as well as the number of cases, controls (for time-case-control), and number of those that were exposed to the drug in the various windows.
 
 ## Empirical calibration
 
@@ -395,7 +367,7 @@ Now that we have produced estimates for all outcomes including our negative cont
 ```{r tidy=FALSE,eval=FALSE}
 library(EmpiricalCalibration)
 
-# Analysis 1: Simplest model
+# Analysis 1: Simple case-crossover
 negCons <- analysisSum[analysisSum$analysisId == 1 & analysisSum$exposureId != 1124300, ]
 ei <-  analysisSum[analysisSum$analysisId == 1 & analysisSum$exposureId == 1124300, ]
 null <- fitNull(negCons$logRr, negCons$seLogRr)
@@ -406,7 +378,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 1 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 1 & analysisSum$exposureId == 1124300, ]
@@ -431,7 +403,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 2 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 2 & analysisSum$exposureId == 1124300, ]
@@ -445,7 +417,7 @@ if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
 ```
 
 ```{r tidy=FALSE,eval=FALSE}
-# Analysis 3: Nesting and including covariates
+# Analysis 3: Nested case-time-control, matching on age and gender
 negCons <- analysisSum[analysisSum$analysisId == 3 & analysisSum$exposureId != 1124300, ]
 ei <-  analysisSum[analysisSum$analysisId == 3 & analysisSum$exposureId == 1124300, ]
 null <- fitNull(negCons$logRr, negCons$seLogRr)
@@ -456,7 +428,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 3 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 3 & analysisSum$exposureId == 1124300, ]
@@ -470,7 +442,7 @@ if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
 ```
 
 ```{r tidy=FALSE,eval=FALSE}
-# Analysis 4: Nesting, including covariates, and matching on visit
+# Analysis 4: Nested case-time-control, matching on age, gender, and visit
 negCons <- analysisSum[analysisSum$analysisId == 4 & analysisSum$exposureId != 1124300, ]
 ei <-  analysisSum[analysisSum$analysisId == 4 & analysisSum$exposureId == 1124300, ]
 null <- fitNull(negCons$logRr, negCons$seLogRr)
@@ -481,7 +453,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 4 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 4 & analysisSum$exposureId == 1124300, ]
@@ -495,13 +467,13 @@ if (file.exists("s:/temp/vignetteCaseControl2/outcomeModelReference.rds")){
 ```
 ## Acknowledgments
 
-Considerable work has been dedicated to provide the `CaseControl` package.
+Considerable work has been dedicated to provide the `CaseCrossover` package.
 
 ```{r tidy=TRUE,eval=TRUE}
-citation("CaseControl")
+citation("CaseCrossover")
 ```
 
-Further, `CaseControl` makes extensive use of the `Cyclops` package.
+Further, `CaseCrossover` makes extensive use of the `Cyclops` package.
 
 ```{r tidy=TRUE,eval=TRUE}
 citation("Cyclops")

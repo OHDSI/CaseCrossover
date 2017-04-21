@@ -94,16 +94,20 @@ selectSubjectsToInclude <- function(caseCrossoverData,
   metaData <- attr(caseControls, "metaData")
 
   # Need to join to nestingCohorts to get observation period start date back:
-  subset <- caseCrossoverData$nestingCohorts[ffbase::`%in%`(caseCrossoverData$nestingCohorts$personId,
-                                                            unique(caseControls$personId)), c("personId",
-                                                                                              "observationPeriodStartDate",
-                                                                                              "startDate",
-                                                                                              "endDate")]
-  result <- merge(caseControls, subset)
-  result <- result[result$indexDate >= result$startDate & result$indexDate <= result$endDate, ]
-  result$startDate <- NULL
-  result$endDate <- NULL
-
+  if (nrow(caseControls) == 0) {
+    result <- caseControls
+    result$observationPeriodStartDate <- c()
+  } else {
+    subset <- caseCrossoverData$nestingCohorts[ffbase::`%in%`(caseCrossoverData$nestingCohorts$personId,
+                                                              unique(caseControls$personId)), c("personId",
+                                                                                                "observationPeriodStartDate",
+                                                                                                "startDate",
+                                                                                                "endDate")]
+    result <- merge(caseControls, subset)
+    result <- result[result$indexDate >= result$startDate & result$indexDate <= result$endDate, ]
+    result$startDate <- NULL
+    result$endDate <- NULL
+  }
   attr(result, "metaData") <- metaData
   return(result)
 }

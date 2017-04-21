@@ -302,6 +302,7 @@ summary(fit)
 ```
 ```{r echo=FALSE,message=FALSE}
 if (file.exists("s:/temp/vignetteCaseCrossover")){
+  fit <- readRDS("s:/temp/vignetteCaseCrossover/fit.rds")
   summary(fit)
 }
 ```

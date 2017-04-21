@@ -33,7 +33,7 @@
 #'                                    the specific nesting cohort to use in this analysis.
 #' @param getDbCaseCrossoverDataArgs           An object representing the arguments to be used when calling the
 #'                                    \code{\link{createGetDbCaseCrossoverDataArgs}} function.
-#' @param selectSubjectsToIncludesArgs          An object representing the arguments to be used when calling the
+#' @param selectSubjectsToIncludeArgs          An object representing the arguments to be used when calling the
 #'                                    \code{\link{selectSubjectsToInclude}} function.
 #' @param getExposureStatusArgs   An object representing the arguments to be used when calling the
 #'                                    \code{\link{getExposureStatus}} function.

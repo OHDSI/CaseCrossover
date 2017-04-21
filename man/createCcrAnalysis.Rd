@@ -29,11 +29,11 @@ the specific nesting cohort to use in this analysis.}
 \item{getDbCaseCrossoverDataArgs}{An object representing the arguments to be used when calling the
 \code{\link{createGetDbCaseCrossoverDataArgs}} function.}
 
+\item{selectSubjectsToIncludeArgs}{An object representing the arguments to be used when calling the
+\code{\link{selectSubjectsToInclude}} function.}
+
 \item{getExposureStatusArgs}{An object representing the arguments to be used when calling the
 \code{\link{getExposureStatus}} function.}
-
-\item{selectSubjectsToIncludesArgs}{An object representing the arguments to be used when calling the
-\code{\link{selectSubjectsToInclude}} function.}
 }
 \description{
 Create a case-crossover analysis specification
