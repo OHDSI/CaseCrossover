@@ -74,11 +74,16 @@ getExposureStatus <- function(subjects,
   windows$rowId <- 1:nrow(windows)
 
   # Subset exposures by exposureId, personId, and first exposures (if specified)
-  exposures <- caseCrossoverData$exposures[caseCrossoverData$exposures$exposureId == exposureId, ]
-  idx <- ffbase::`%in%`(exposures$personId, unique(subjects$personId))
+  idx <- caseCrossoverData$exposures$exposureId == exposureId
   if (ffbase::any.ff(idx)) {
-    subset <- exposures[idx, c("personId", "exposureStartDate", "exposureEndDate")]
-    subset <- ff::as.ram(subset)
+    exposures <- caseCrossoverData$exposures[idx, ]
+    idx <- ffbase::`%in%`(exposures$personId, unique(subjects$personId))
+    if (ffbase::any.ff(idx)) {
+      subset <- exposures[idx, c("personId", "exposureStartDate", "exposureEndDate")]
+      subset <- ff::as.ram(subset)
+    } else {
+      subset <- data.frame(personId = c(), exposureStartDate = c(), exposureEndDate = c())
+    }
   } else {
     subset <- data.frame(personId = c(), exposureStartDate = c(), exposureEndDate = c())
   }
