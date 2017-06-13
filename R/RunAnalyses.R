@@ -127,13 +127,13 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   cdObjectsToCreate <- list()
-  getDbCaseDataCrossoverArgsList <- unique(OhdsiRTools::selectFromList(ccrAnalysisList,
+  getDbCaseCrossoverDataArgsList <- unique(OhdsiRTools::selectFromList(ccrAnalysisList,
                                                                        c("getDbCaseCrossoverDataArgs")))
-  for (d in 1:length(getDbCaseDataCrossoverArgsList)) {
-    getDbCaseDataCrossoverArgs <- getDbCaseDataCrossoverArgsList[[d]]
-    analyses <- OhdsiRTools::matchInList(ccrAnalysisList, getDbCaseDataCrossoverArgs)
+  for (d in 1:length(getDbCaseCrossoverDataArgsList)) {
+    getDbCaseCrossoverDataArgs <- getDbCaseCrossoverDataArgsList[[d]]
+    analyses <- OhdsiRTools::matchInList(ccrAnalysisList, getDbCaseCrossoverDataArgs)
     analysesIds <- unlist(OhdsiRTools::selectFromList(analyses, "analysisId"))
-    if (getDbCaseDataCrossoverArgs$getDbCaseCrossoverDataArgs$useNestingCohort) {
+    if (getDbCaseCrossoverDataArgs$getDbCaseCrossoverDataArgs$useNestingCohort) {
       nestingCohortIds <- unique(outcomeReference$nestingCohortId[outcomeReference$analysisId %in%
                                                                     analysesIds])
       for (nestingCohortId in nestingCohortIds) {
@@ -160,7 +160,7 @@ runCcrAnalyses <- function(connectionDetails,
                        exposureDatabaseSchema = exposureDatabaseSchema,
                        exposureTable = exposureTable,
                        exposureIds = unique(outcomeReference$exposureId[idx]))
-          args <- append(args, getDbCaseDataCrossoverArgs$getDbCaseCrossoverDataArgs)
+          args <- append(args, getDbCaseCrossoverDataArgs$getDbCaseCrossoverDataArgs)
           if (is.na(nestingCohortId)) {
             args$nestingCohortId <- NULL
             args$useObservationEndAsNestingEndDate <- FALSE
@@ -188,7 +188,7 @@ runCcrAnalyses <- function(connectionDetails,
                      exposureDatabaseSchema = exposureDatabaseSchema,
                      exposureTable = exposureTable,
                      exposureIds = unique(outcomeReference$exposureId[idx]))
-        args <- append(args, getDbCaseDataCrossoverArgs$getDbCaseDataCrossoverArgs)
+        args <- append(args, getDbCaseCrossoverDataArgs$getDbCaseCrossoverDataArgs)
         cdObjectsToCreate[[length(cdObjectsToCreate) + 1]] <- list(args = args,
                                                                    cdDataFileName = cdDataFileName)
       }
