@@ -276,10 +276,6 @@ runCcrAnalyses <- function(connectionDetails,
   ### Actual construction of objects ###
 
   writeLines("*** Creating caseCrossoverData objects ***")
-  createCaseCrossoverDataObject <- function(params) {
-    caseCrossoverData <- do.call("getDbCaseCrossoverData", params$args)
-    saveCaseCrossoverData(caseCrossoverData, params$cdDataFileName)
-  }
   if (length(cdObjectsToCreate) != 0) {
     cluster <- OhdsiRTools::makeCluster(getDbCaseCrossoverDataThreads)
     OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
@@ -288,12 +284,6 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   writeLines("*** Creating subjects objects ***")
-  createSubjectsObject <- function(params) {
-    caseCrossoverData <- loadCaseCrossoverData(params$cdDataFileName, readOnly = TRUE)
-    params$args$caseCrossoverData <- caseCrossoverData
-    subjects <- do.call("selectSubjectsToInclude", params$args)
-    saveRDS(subjects, params$subsFilename)
-  }
   if (length(subsObjectsToCreate) != 0) {
     cluster <- OhdsiRTools::makeCluster(selectSubjectsToIncludeThreads)
     OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
@@ -302,14 +292,6 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   writeLines("*** Creating exposureStatus objects ***")
-  createExposureStatusObject <- function(params) {
-    subjects <- readRDS(params$subsFilename)
-    caseCrossoverData <- loadCaseCrossoverData(params$cdFilename)
-    params$args$subjects <- subjects
-    params$args$caseCrossoverData <- caseCrossoverData
-    exposureStatus <- do.call("getExposureStatus", params$args)
-    saveRDS(exposureStatus, params$esFilename)
-  }
   if (length(esObjectsToCreate) != 0) {
     cluster <- OhdsiRTools::makeCluster(getExposureStatusThreads)
     OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
@@ -318,12 +300,6 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   writeLines("*** Creating case-crossover model objects ***")
-  createModelObject <- function(params) {
-    exposureStatus <- readRDS(params$esFilename)
-    params$args$exposureStatus <- exposureStatus
-    model <- do.call("fitCaseCrossoverModel", params$args)
-    saveRDS(model, params$modelFilename)
-  }
   if (length(modelObjectsToCreate) != 0) {
     cluster <- OhdsiRTools::makeCluster(fitCaseCrossoverModelThreads)
     OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
@@ -332,6 +308,37 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   invisible(outcomeReference)
+}
+createCaseCrossoverDataObject <- function(params) {
+  caseCrossoverData <- do.call("getDbCaseCrossoverData", params$args)
+  saveCaseCrossoverData(caseCrossoverData, params$cdDataFileName)
+  return(NULL)
+}
+
+createSubjectsObject <- function(params) {
+  caseCrossoverData <- loadCaseCrossoverData(params$cdDataFileName, readOnly = TRUE)
+  params$args$caseCrossoverData <- caseCrossoverData
+  subjects <- do.call("selectSubjectsToInclude", params$args)
+  saveRDS(subjects, params$subsFilename)
+  return(NULL)
+}
+
+createExposureStatusObject <- function(params) {
+  subjects <- readRDS(params$subsFilename)
+  caseCrossoverData <- loadCaseCrossoverData(params$cdFilename)
+  params$args$subjects <- subjects
+  params$args$caseCrossoverData <- caseCrossoverData
+  exposureStatus <- do.call("getExposureStatus", params$args)
+  saveRDS(exposureStatus, params$esFilename)
+  return(NULL)
+}
+
+createModelObject <- function(params) {
+  exposureStatus <- readRDS(params$esFilename)
+  params$args$exposureStatus <- exposureStatus
+  model <- do.call("fitCaseCrossoverModel", params$args)
+  saveRDS(model, params$modelFilename)
+  return(NULL)
 }
 
 .createCaseCrossoverDataFileName <- function(folder, loadId, nestingCohortId = NULL) {

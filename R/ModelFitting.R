@@ -32,12 +32,12 @@ fitCaseCrossoverModel <- function(exposureStatus) {
 
   caseTimeControl <- any(!exposureStatus$isCase)
   if (caseTimeControl) {
-    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + exposed * isCase + strata(stratumId),
+    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId),
                                               data = exposureStatus,
                                               modelType = "clr")
     treatmentVar <- "exposed:isCaseTRUE"
   } else {
-    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + exposed + strata(stratumId),
+    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + strata(stratumId),
                                               data = exposureStatus,
                                               modelType = "clr")
     treatmentVar <- "exposed"
