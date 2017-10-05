@@ -32,27 +32,30 @@ fitCaseCrossoverModel <- function(exposureStatus) {
 
   caseTimeControl <- any(!exposureStatus$isCase)
   if (caseTimeControl) {
-    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId),
-                                              data = exposureStatus,
-                                              modelType = "clr_exact")
+    form <- formula(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId))
+    # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId),
+    #                                           data = exposureStatus,
+    #                                           modelType = "clr_exact")
     treatmentVar <- "exposed:isCaseTRUE"
   } else {
-    cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + strata(stratumId),
-                                              data = exposureStatus,
-                                              modelType = "clr_exact")
+    form <- formula(isCaseWindow ~ exposed + strata(stratumId))
+    # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + strata(stratumId),
+    #                                           data = exposureStatus,
+    #                                           modelType = "clr_exact")
     treatmentVar <- "exposed"
   }
   fit <- tryCatch({
-    Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
+    # Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
+    clogit(form, data = exposureStatus)
   }, error = function(e) {
     e$message
   })
   if (is.character(fit)) {
     status <- fit
-  } else if (fit$return_flag == "ILLCONDITIONED") {
-    status <- "ILL CONDITIONED, CANNOT FIT"
-  } else if (fit$return_flag == "MAX_ITERATIONS") {
-    status <- "REACHED MAXIMUM NUMBER OF ITERATIONS, CANNOT FIT"
+  # } else if (fit$return_flag == "ILLCONDITIONED") {
+  #   status <- "ILL CONDITIONED, CANNOT FIT"
+  # } else if (fit$return_flag == "MAX_ITERATIONS") {
+  #   status <- "REACHED MAXIMUM NUMBER OF ITERATIONS, CANNOT FIT"
   } else {
     status <- "OK"
     coefficients <- coef(fit)
@@ -61,15 +64,21 @@ fitCaseCrossoverModel <- function(exposureStatus) {
       confint(fit, parm = treatmentVar)
     }, error = function(e) {
       missing(e)  # suppresses R CMD check note
-      c(0, -Inf, Inf)
+      c(-Inf, Inf)
+      # c(0, -Inf, Inf)
     })
     if (identical(ci, c(0, -Inf, Inf)))
       status <- "ERROR COMPUTING CI"
-    seLogRr <- (ci[3] - ci[2])/(2 * qnorm(0.975))
+    seLogRr <- (ci[2] - ci[1])/(2 * qnorm(0.975))
     treatmentEstimate <- data.frame(logRr = logRr,
-                                    logLb95 = ci[2],
-                                    logUb95 = ci[3],
+                                    logLb95 = ci[1],
+                                    logUb95 = ci[2],
                                     seLogRr = seLogRr)
+    # seLogRr <- (ci[3] - ci[2])/(2 * qnorm(0.975))
+    # treatmentEstimate <- data.frame(logRr = logRr,
+    #                                 logLb95 = ci[2],
+    #                                 logUb95 = ci[3],
+    #                                 seLogRr = seLogRr)
   }
   outcomeModel <- list()
   outcomeModel$outcomeModelTreatmentEstimate <- treatmentEstimate

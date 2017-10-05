@@ -74,7 +74,7 @@ caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetail
 
 saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
-caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
+# caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
 caseCrossoverData
 
@@ -100,7 +100,7 @@ exposureStatus <- getExposureStatus(subjects = subjects,
 head(exposureStatus)
 
 saveRDS(exposureStatus, "s:/temp/vignetteCaseCrossover/exposureStatus.rds")
-
+# exposureStatus <- readRDS("s:/temp/vignetteCaseCrossover/exposureStatus.rds")
 
 fit <- fitCaseCrossoverModel(exposureStatus)
 saveRDS(fit, "s:/temp/vignetteCaseCrossover/fit.rds")
