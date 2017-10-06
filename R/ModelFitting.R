@@ -32,7 +32,11 @@ fitCaseCrossoverModel <- function(exposureStatus) {
 
   caseTimeControl <- any(!exposureStatus$isCase)
   if (caseTimeControl) {
-    form <- formula(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId))
+    # StratumId links cases and controls. We just need a stratum ID that linkes windows:
+    exposureStatus$newStratumId <- exposureStatus$stratumId
+    exposureStatus$newStratumId[exposureStatus$isCase] <- exposureStatus$stratumId[exposureStatus$isCase] + max(exposureStatus$stratumId)
+
+    form <- formula(isCaseWindow ~ exposed +  exposed * isCase + strata(newStratumId))
     # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId),
     #                                           data = exposureStatus,
     #                                           modelType = "clr_exact")
@@ -46,7 +50,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
   }
   fit <- tryCatch({
     # Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
-    clogit(form, data = exposureStatus)
+    suppressWarnings(clogit(form, data = exposureStatus))
   }, error = function(e) {
     e$message
   })

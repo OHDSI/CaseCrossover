@@ -57,7 +57,7 @@ sql <- SqlRender::renderSql(sql,
                             cohortTable = cohortTable)$sql
 sql <- SqlRender::translateSql(sql, targetDialect = connectionDetails$dbms)$sql
 DatabaseConnector::querySql(connection, sql)
-RJDBC::dbDisconnect(connection)
+DatabaseConnector::disconnect(connection)
 
 negativeControls <- c(705178,
                       705944,

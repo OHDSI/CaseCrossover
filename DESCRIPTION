@@ -1,8 +1,8 @@
 Package: CaseCrossover
 Type: Package
 Title: Case-Crossover
-Version: 0.1.0
-Date: 2017-10-04
+Version: 1.0.0
+Date: 2017-10-06
 Author: Martijn Schuemie
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: An R package for performing case-crossover and case-time-control analyses in an observational database in the OMOP Common Data Model.
