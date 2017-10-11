@@ -53,7 +53,7 @@ sql <- SqlRender::renderSql(sql,
 sql <- SqlRender::translateSql(sql, targetDialect = connectionDetails$dbms)$sql
 DatabaseConnector::querySql(connection, sql)
 
-RJDBC::dbDisconnect(connection)
+DatabaseConnector::disconnect(connection)
 
 
 caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetails,

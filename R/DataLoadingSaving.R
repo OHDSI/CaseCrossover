@@ -155,27 +155,28 @@ saveCaseCrossoverData <- function(caseCrossoverData, folder) {
     stop("Data not of class caseCrossoverData")
 
   nestingCohorts <- caseCrossoverData$nestingCohorts
+  cases <- caseCrossoverData$cases
   if (caseCrossoverData$metaData$hasVisits) {
     visits <- caseCrossoverData$visits
     if (caseCrossoverData$metaData$hasExposures) {
       exposures <- caseCrossoverData$exposures
-      ffbase::save.ffdf(nestingCohorts, visits, exposures, dir = folder)
+      ffbase::save.ffdf(nestingCohorts, cases, visits, exposures, dir = folder)
       open(caseCrossoverData$exposures)
     } else {
-      ffbase::save.ffdf(nestingCohorts, visits, dir = folder)
+      ffbase::save.ffdf(nestingCohorts, cases, visits, dir = folder)
     }
     open(caseCrossoverData$visits)
   } else {
     if (caseCrossoverData$metaData$hasExposures) {
       exposures <- caseCrossoverData$exposures
-      ffbase::save.ffdf(nestingCohorts, exposures, dir = folder)
+      ffbase::save.ffdf(nestingCohorts, cases, exposures, dir = folder)
       open(caseCrossoverData$exposures)
     } else {
-      ffbase::save.ffdf(nestingCohorts, dir = folder)
+      ffbase::save.ffdf(nestingCohorts, cases, dir = folder)
     }
   }
   open(caseCrossoverData$nestingCohorts)
-  saveRDS(caseCrossoverData$cases, file = file.path(folder, "cases.rds"))
+  open(caseCrossoverData$cases)
   saveRDS(caseCrossoverData$metaData, file = file.path(folder, "metaData.rds"))
   invisible(TRUE)
 }
@@ -202,16 +203,17 @@ loadCaseCrossoverData <- function(folder, readOnly = TRUE) {
   if (!file.info(folder)$isdir)
     stop(paste("Not a folder:", folder))
 
-  cases <- readRDS(file.path(folder, "cases.rds"))
   metaData <- readRDS(file.path(folder, "metaData.rds"))
-  caseCrossoverData <- list(cases = cases, metaData = metaData)
+  caseCrossoverData <- list(metaData = metaData)
 
   temp <- setwd(folder)
   absolutePath <- setwd(temp)
   e <- new.env()
   ffbase::load.ffdf(absolutePath, e)
   caseCrossoverData$nestingCohorts <- get("nestingCohorts", envir = e)
+  caseCrossoverData$cases <- get("cases", envir = e)
   open(caseCrossoverData$nestingCohorts, readonly = readOnly)
+  open(caseCrossoverData$cases, readonly = readOnly)
   if (caseCrossoverData$metaData$hasVisits) {
     caseCrossoverData$visits <- get("visits", envir = e)
     open(caseCrossoverData$visits, readonly = readOnly)
