@@ -72,6 +72,9 @@ caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetail
                                             useObservationEndAsNestingEndDate = TRUE,
                                             getTimeControlData = TRUE)
 
+if (!file.exists("s:/temp/vignetteCaseCrossover"))
+  dir.create("s:/temp/vignetteCaseCrossover")
+
 saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
 # caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
