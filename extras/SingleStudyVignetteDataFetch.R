@@ -1,4 +1,4 @@
-# Copyright 2017 Observational Health Data Sciences and Informatics
+# Copyright 2018 Observational Health Data Sciences and Informatics
 #
 # This file is part of CaseCrossover
 #
@@ -21,12 +21,12 @@ options(fftempdir = "s:/fftemp")
 pw <- NULL
 dbms <- "pdw"
 user <- NULL
-server <- "JRDUSAPSCTL01"
 cdmDatabaseSchema <- "cdm_truven_mdcd_v521.dbo"
 cohortDatabaseSchema <- "scratch.dbo"
 oracleTempSchema <- NULL
 cohortTable <- "mschuemi_cc_vignette"
-port <- 17001
+server <- Sys.getenv("PDW_SERVER")
+port <- Sys.getenv("PDW_PORT")
 
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
