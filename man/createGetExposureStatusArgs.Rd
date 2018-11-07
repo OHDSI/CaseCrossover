@@ -5,7 +5,8 @@
 \title{Create a parameter object for the function getExposureStatus}
 \usage{
 createGetExposureStatusArgs(firstExposureOnly = FALSE,
-  riskWindowStart = -30, riskWindowEnd = 0, controlWindowOffsets = c(-60))
+  riskWindowStart = -30, riskWindowEnd = 0,
+  controlWindowOffsets = c(-60))
 }
 \arguments{
 \item{firstExposureOnly}{Should only the first exposure per subject be included?}

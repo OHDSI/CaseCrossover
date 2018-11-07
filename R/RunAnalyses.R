@@ -93,13 +93,13 @@ runCcrAnalyses <- function(connectionDetails,
   for (exposureOutcomeNestingCohort in exposureOutcomeNestingCohortList) stopifnot(class(exposureOutcomeNestingCohort) ==
                                                                                      "exposureOutcomeNestingCohort")
   for (ccrAnalysis in ccrAnalysisList) stopifnot(class(ccrAnalysis) == "ccrAnalysis")
-  uniqueExposureOutcomeNcList <- unique(OhdsiRTools::selectFromList(exposureOutcomeNestingCohortList,
+  uniqueExposureOutcomeNcList <- unique(ParallelLogger::selectFromList(exposureOutcomeNestingCohortList,
                                                                     c("exposureId",
                                                                       "outcomeId",
                                                                       "nestingCohortId")))
   if (length(uniqueExposureOutcomeNcList) != length(exposureOutcomeNestingCohortList))
     stop("Duplicate exposure-outcome-nesting cohort combinations are not allowed")
-  uniqueAnalysisIds <- unlist(unique(OhdsiRTools::selectFromList(ccrAnalysisList, "analysisId")))
+  uniqueAnalysisIds <- unlist(unique(ParallelLogger::selectFromList(ccrAnalysisList, "analysisId")))
   if (length(uniqueAnalysisIds) != length(ccrAnalysisList))
     stop("Duplicate analysis IDs are not allowed")
 
@@ -127,12 +127,12 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   cdObjectsToCreate <- list()
-  getDbCaseCrossoverDataArgsList <- unique(OhdsiRTools::selectFromList(ccrAnalysisList,
+  getDbCaseCrossoverDataArgsList <- unique(ParallelLogger::selectFromList(ccrAnalysisList,
                                                                        c("getDbCaseCrossoverDataArgs")))
   for (d in 1:length(getDbCaseCrossoverDataArgsList)) {
     getDbCaseCrossoverDataArgs <- getDbCaseCrossoverDataArgsList[[d]]
-    analyses <- OhdsiRTools::matchInList(ccrAnalysisList, getDbCaseCrossoverDataArgs)
-    analysesIds <- unlist(OhdsiRTools::selectFromList(analyses, "analysisId"))
+    analyses <- ParallelLogger::matchInList(ccrAnalysisList, getDbCaseCrossoverDataArgs)
+    analysesIds <- unlist(ParallelLogger::selectFromList(analyses, "analysisId"))
     if (getDbCaseCrossoverDataArgs$getDbCaseCrossoverDataArgs$useNestingCohort) {
       nestingCohortIds <- unique(outcomeReference$nestingCohortId[outcomeReference$analysisId %in%
                                                                     analysesIds])
@@ -196,12 +196,12 @@ runCcrAnalyses <- function(connectionDetails,
   }
 
   subsObjectsToCreate <- list()
-  selectSubjectsArgsList <- unique(OhdsiRTools::selectFromList(ccrAnalysisList,
+  selectSubjectsArgsList <- unique(ParallelLogger::selectFromList(ccrAnalysisList,
                                                                c("selectSubjectsToIncludeArgs")))
   for (i in 1:length(selectSubjectsArgsList)) {
     selectSubjectsArgs <- selectSubjectsArgsList[[i]]
-    analyses <- OhdsiRTools::matchInList(ccrAnalysisList, selectSubjectsArgs)
-    analysesIds <- unlist(OhdsiRTools::selectFromList(analyses, "analysisId"))
+    analyses <- ParallelLogger::matchInList(ccrAnalysisList, selectSubjectsArgs)
+    analysesIds <- unlist(ParallelLogger::selectFromList(analyses, "analysisId"))
     cdDataFileNames <- unique(outcomeReference$caseCrossoverDataFolder[outcomeReference$analysisId %in% analysesIds])
     for (cdDataFileName in cdDataFileNames) {
       cdId <- gsub("^.*caseCrossoverData_", "", cdDataFileName)
@@ -230,7 +230,7 @@ runCcrAnalyses <- function(connectionDetails,
     esArgsList <- esArgsList[!sapply(esArgsList, is.null)]
     for (es in 1:length(esArgsList)) {
       esArgs <- esArgsList[[es]]
-      analysisIds <- unlist(unique(OhdsiRTools::selectFromList(OhdsiRTools::matchInList(ccrAnalysisList,
+      analysisIds <- unlist(unique(ParallelLogger::selectFromList(ParallelLogger::matchInList(ccrAnalysisList,
                                                                                         list(getExposureStatusArgs = esArgs)),
                                                                "analysisId")))
       idx <- outcomeReference$subjectsFile == subsFilename & outcomeReference$analysisId %in% analysisIds
@@ -275,36 +275,36 @@ runCcrAnalyses <- function(connectionDetails,
 
   ### Actual construction of objects ###
 
-  writeLines("*** Creating caseCrossoverData objects ***")
+  ParallelLogger::logInfo("*** Creating caseCrossoverData objects ***")
   if (length(cdObjectsToCreate) != 0) {
-    cluster <- OhdsiRTools::makeCluster(getDbCaseCrossoverDataThreads)
-    OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
-    dummy <- OhdsiRTools::clusterApply(cluster, cdObjectsToCreate, createCaseCrossoverDataObject)
-    OhdsiRTools::stopCluster(cluster)
+    cluster <- ParallelLogger::makeCluster(getDbCaseCrossoverDataThreads)
+    ParallelLogger::clusterRequire(cluster, "CaseCrossover")
+    dummy <- ParallelLogger::clusterApply(cluster, cdObjectsToCreate, createCaseCrossoverDataObject)
+    ParallelLogger::stopCluster(cluster)
   }
 
-  writeLines("*** Creating subjects objects ***")
+  ParallelLogger::logInfo("*** Creating subjects objects ***")
   if (length(subsObjectsToCreate) != 0) {
-    cluster <- OhdsiRTools::makeCluster(selectSubjectsToIncludeThreads)
-    OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
-    dummy <- OhdsiRTools::clusterApply(cluster, subsObjectsToCreate, createSubjectsObject)
-    OhdsiRTools::stopCluster(cluster)
+    cluster <- ParallelLogger::makeCluster(selectSubjectsToIncludeThreads)
+    ParallelLogger::clusterRequire(cluster, "CaseCrossover")
+    dummy <- ParallelLogger::clusterApply(cluster, subsObjectsToCreate, createSubjectsObject)
+    ParallelLogger::stopCluster(cluster)
   }
 
-  writeLines("*** Creating exposureStatus objects ***")
+  ParallelLogger::logInfo("*** Creating exposureStatus objects ***")
   if (length(esObjectsToCreate) != 0) {
-    cluster <- OhdsiRTools::makeCluster(getExposureStatusThreads)
-    OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
-    dummy <- OhdsiRTools::clusterApply(cluster, esObjectsToCreate, createExposureStatusObject)
-    OhdsiRTools::stopCluster(cluster)
+    cluster <- ParallelLogger::makeCluster(getExposureStatusThreads)
+    ParallelLogger::clusterRequire(cluster, "CaseCrossover")
+    dummy <- ParallelLogger::clusterApply(cluster, esObjectsToCreate, createExposureStatusObject)
+    ParallelLogger::stopCluster(cluster)
   }
 
-  writeLines("*** Creating case-crossover model objects ***")
+  ParallelLogger::logInfo("*** Creating case-crossover model objects ***")
   if (length(modelObjectsToCreate) != 0) {
-    cluster <- OhdsiRTools::makeCluster(fitCaseCrossoverModelThreads)
-    OhdsiRTools::clusterRequire(cluster, "CaseCrossover")
-    dummy <- OhdsiRTools::clusterApply(cluster, modelObjectsToCreate, createModelObject)
-    OhdsiRTools::stopCluster(cluster)
+    cluster <- ParallelLogger::makeCluster(fitCaseCrossoverModelThreads)
+    ParallelLogger::clusterRequire(cluster, "CaseCrossover")
+    dummy <- ParallelLogger::clusterApply(cluster, modelObjectsToCreate, createModelObject)
+    ParallelLogger::stopCluster(cluster)
   }
 
   invisible(outcomeReference)

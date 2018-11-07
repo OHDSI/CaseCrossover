@@ -6,14 +6,15 @@
 \usage{
 getDbCaseCrossoverData(connectionDetails, cdmDatabaseSchema,
   oracleTempSchema = cdmDatabaseSchema,
-  outcomeDatabaseSchema = cdmDatabaseSchema, outcomeTable = "condition_era",
-  outcomeIds = c(), useNestingCohort = FALSE,
+  outcomeDatabaseSchema = cdmDatabaseSchema,
+  outcomeTable = "condition_era", outcomeIds = c(),
+  useNestingCohort = FALSE,
   nestingCohortDatabaseSchema = cdmDatabaseSchema,
   nestingCohortTable = "cohort", nestingCohortId = NULL,
   useObservationEndAsNestingEndDate = TRUE, getVisits = FALSE,
-  exposureDatabaseSchema = cdmDatabaseSchema, exposureTable = "drug_era",
-  exposureIds = c(), studyStartDate = "", studyEndDate = "",
-  getTimeControlData = FALSE)
+  exposureDatabaseSchema = cdmDatabaseSchema,
+  exposureTable = "drug_era", exposureIds = c(), studyStartDate = "",
+  studyEndDate = "", getTimeControlData = FALSE)
 }
 \arguments{
 \item{connectionDetails}{An R object of type \code{ConnectionDetails} created

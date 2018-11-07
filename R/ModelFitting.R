@@ -32,6 +32,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
 
   caseTimeControl <- any(!exposureStatus$isCase)
   if (caseTimeControl) {
+    ParallelLogger::logInfo("Fitting case-time-control model")
     # StratumId links cases and controls. We just need a stratum ID that linkes windows:
     exposureStatus$newStratumId <- exposureStatus$stratumId
     exposureStatus$newStratumId[exposureStatus$isCase] <- exposureStatus$stratumId[exposureStatus$isCase] + max(exposureStatus$stratumId)
@@ -42,6 +43,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
     #                                           modelType = "clr_exact")
     treatmentVar <- "exposed:isCaseTRUE"
   } else {
+    ParallelLogger::logInfo("Fitting case-crossover model")
     form <- formula(isCaseWindow ~ exposed + strata(stratumId))
     # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + strata(stratumId),
     #                                           data = exposureStatus,
@@ -50,7 +52,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
   }
   fit <- tryCatch({
     # Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
-    suppressWarnings(clogit(form, data = exposureStatus))
+    suppressWarnings(survival::clogit(form, data = exposureStatus))
   }, error = function(e) {
     e$message
   })
@@ -98,7 +100,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
   outcomeModel$outcomeCounts <- outcomeCounts
   class(outcomeModel) <- "outcomeModel"
   delta <- Sys.time() - start
-  writeLines(paste("Fitting model took", signif(delta, 3), attr(delta, "units")))
+  ParallelLogger::logInfo(paste("Fitting model took", signif(delta, 3), attr(delta, "units")))
   return(outcomeModel)
 }
 

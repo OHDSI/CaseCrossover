@@ -4,9 +4,9 @@
 \alias{selectSubjectsToInclude}
 \title{Select subjects to include}
 \usage{
-selectSubjectsToInclude(caseCrossoverData, outcomeId, firstOutcomeOnly = TRUE,
-  washoutPeriod = 180, matchingCriteria = NULL, minAge = NULL,
-  maxAge = NULL)
+selectSubjectsToInclude(caseCrossoverData, outcomeId,
+  firstOutcomeOnly = TRUE, washoutPeriod = 180,
+  matchingCriteria = NULL, minAge = NULL, maxAge = NULL)
 }
 \arguments{
 \item{caseCrossoverData}{An object of type \code{caseCrossoverData} as generated using the
