@@ -145,9 +145,9 @@ runCcrAnalyses <- function(connectionDetails,
         }
         outcomeIds <- unique(outcomeReference$outcomeId[idx])
 
-        cdDataFileName <- .createCaseCrossoverDataFileName(outputFolder, d, nestingCohortId)
+        cdDataFileName <- .createCaseCrossoverDataFileName(d, nestingCohortId)
         outcomeReference$caseCrossoverDataFolder[idx] <- cdDataFileName
-        if (!file.exists(cdDataFileName)) {
+        if (!file.exists(file.path(outputFolder, cdDataFileName))) {
           args <- list(connectionDetails = connectionDetails,
                        cdmDatabaseSchema = cdmDatabaseSchema,
                        oracleTempSchema = oracleTempSchema,
@@ -166,7 +166,7 @@ runCcrAnalyses <- function(connectionDetails,
             args$useObservationEndAsNestingEndDate <- FALSE
           }
           cdObjectsToCreate[[length(cdObjectsToCreate) + 1]] <- list(args = args,
-                                                                     cdDataFileName = cdDataFileName)
+                                                                     cdDataFileName = file.path(outputFolder, cdDataFileName))
         }
       }
     } else {
@@ -175,7 +175,7 @@ runCcrAnalyses <- function(connectionDetails,
       cdDataFileName <- .createCaseCrossoverDataFileName(outputFolder, d)
       idx <- outcomeReference$analysisId %in% analysesIds
       outcomeReference$caseCrossoverDataFolder[idx] <- cdDataFileName
-      if (!file.exists(cdDataFileName)) {
+      if (!file.exists(file.path(outputFolder, cdDataFileName))) {
         args <- list(connectionDetails = connectionDetails,
                      cdmDatabaseSchema = cdmDatabaseSchema,
                      oracleTempSchema = oracleTempSchema,
@@ -190,7 +190,7 @@ runCcrAnalyses <- function(connectionDetails,
                      exposureIds = unique(outcomeReference$exposureId[idx]))
         args <- append(args, getDbCaseCrossoverDataArgs$getDbCaseCrossoverDataArgs)
         cdObjectsToCreate[[length(cdObjectsToCreate) + 1]] <- list(args = args,
-                                                                   cdDataFileName = cdDataFileName)
+                                                                   cdDataFileName = file.path(outputFolder, cdDataFileName))
       }
     }
   }
@@ -209,14 +209,14 @@ runCcrAnalyses <- function(connectionDetails,
         cdDataFileName
       outcomeIds <- unique(outcomeReference$outcomeId[idx])
       for (outcomeId in outcomeIds) {
-        subsFilename <- .createSubjectsFileName(outputFolder, cdId, i, outcomeId)
+        subsFilename <- .createSubjectsFileName(cdId, i, outcomeId)
         outcomeReference$subjectsFile[idx & outcomeReference$outcomeId == outcomeId] <- subsFilename
-        if (!file.exists(subsFilename)) {
+        if (!file.exists(file.path(outputFolder, subsFilename))) {
           args <- list(outcomeId = outcomeId)
           args <- append(args, selectSubjectsArgs$selectSubjectsToIncludeArgs)
           subsObjectsToCreate[[length(subsObjectsToCreate) + 1]] <- list(args = args,
-                                                                         cdDataFileName = cdDataFileName,
-                                                                         subsFilename = subsFilename)
+                                                                         cdDataFileName = file.path(outputFolder, cdDataFileName),
+                                                                         subsFilename = file.path(outputFolder, subsFilename))
         }
       }
     }
@@ -239,13 +239,13 @@ runCcrAnalyses <- function(connectionDetails,
         esFilename <- .createExposureStatusFileName(subsFilename, exposureId, es)
         cdFilename <- outcomeReference$caseCrossoverDataFolder[outcomeReference$subjectsFile == subsFilename][1]
         outcomeReference$exposureStatusFile[idx & outcomeReference$exposureId == exposureId] <- esFilename
-        if (!file.exists(esFilename)) {
+        if (!file.exists(file.path(outputFolder, esFilename))) {
           args <- esArgs
           args$exposureId <- exposureId
           esObjectsToCreate[[length(esObjectsToCreate) + 1]] <- list(args = args,
-                                                                     subsFilename = subsFilename,
-                                                                     cdFilename = cdFilename,
-                                                                     esFilename = esFilename)
+                                                                     subsFilename = file.path(outputFolder, subsFilename),
+                                                                     cdFilename = file.path(outputFolder, cdFilename),
+                                                                     esFilename = file.path(outputFolder, esFilename))
         }
       }
     }
@@ -254,9 +254,9 @@ runCcrAnalyses <- function(connectionDetails,
   modelObjectsToCreate <- list()
   for (ccrAnalysis in ccrAnalysisList) {
     # ccAnalysis = ccAnalysisList[[1]]
-    analysisFolder <- file.path(outputFolder, paste("Analysis_", ccrAnalysis$analysisId, sep = ""))
-    if (!file.exists(analysisFolder))
-      dir.create(analysisFolder)
+    analysisFolder <- paste("Analysis_", ccrAnalysis$analysisId, sep = "")
+    if (!file.exists(file.path(outputFolder, analysisFolder)))
+      dir.create(file.path(outputFolder, analysisFolder))
     for (i in which(outcomeReference$analysisId == ccrAnalysis$analysisId)) {
       # i = 1
       exposureId <- outcomeReference$exposureId[i]
@@ -264,9 +264,9 @@ runCcrAnalyses <- function(connectionDetails,
       esFilename <- outcomeReference$exposureStatusFile[i]
       modelFilename <- .createModelFileName(analysisFolder, exposureId, outcomeId)
       outcomeReference$modelFile[i] <- modelFilename
-      if (!file.exists(modelFilename)) {
-        modelObjectsToCreate[[length(modelObjectsToCreate) + 1]] <- list(esFilename = esFilename,
-                                                                         modelFilename = modelFilename)
+      if (!file.exists(file.path(outputFolder, modelFilename))) {
+        modelObjectsToCreate[[length(modelObjectsToCreate) + 1]] <- list(esFilename = file.path(outputFolder, esFilename),
+                                                                         modelFilename = file.path(outputFolder, modelFilename))
       }
     }
   }
@@ -341,16 +341,16 @@ createModelObject <- function(params) {
   return(NULL)
 }
 
-.createCaseCrossoverDataFileName <- function(folder, loadId, nestingCohortId = NULL) {
+.createCaseCrossoverDataFileName <- function(loadId, nestingCohortId = NULL) {
   name <- paste0("caseCrossoverData_cd", loadId)
   if (!is.null(nestingCohortId) && !is.na(nestingCohortId))
     name <- paste0(name, "_n", nestingCohortId)
-  return(file.path(folder, name))
+  return(name)
 }
 
-.createSubjectsFileName <- function(folder, cdId, i, outcomeId) {
+.createSubjectsFileName <- function(cdId, i, outcomeId) {
   name <- paste0("subjects_", cdId, "_subs", i, "_o", outcomeId, ".rds")
-  return(file.path(folder, name))
+  return(name)
 }
 
 .createExposureStatusFileName <- function(subsFilename, exposureId, es) {
@@ -385,9 +385,10 @@ createModelObject <- function(params) {
 #' Create a summary report of the analyses
 #'
 #' @param outcomeReference   A data.frame as created by the \code{\link{runCcrAnalyses}} function.
+#' @param outputFolder       Name of the folder where all the outputs have been written to.
 #'
 #' @export
-summarizeCcrAnalyses <- function(outcomeReference) {
+summarizeCcrAnalyses <- function(outcomeReference, outputFolder) {
   columns <- c("analysisId", "exposureId", "nestingCohortId", "outcomeId")
   result <- outcomeReference[, columns]
   result$rr <- 0
@@ -404,7 +405,7 @@ summarizeCcrAnalyses <- function(outcomeReference) {
   result$exposedControlsControlWindow <- 0
   for (i in 1:nrow(outcomeReference)) {
     if (outcomeReference$modelFile[i] != "") {
-      model <- readRDS(outcomeReference$modelFile[i])
+      model <- readRDS(file.path(outcomeReference$modelFile[i]))
       result$rr[i] <- if (is.null(coef(model)))
         NA else exp(coef(model))
       result$ci95lb[i] <- if (is.null(coef(model)))
