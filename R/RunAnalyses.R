@@ -405,7 +405,7 @@ summarizeCcrAnalyses <- function(outcomeReference, outputFolder) {
   result$exposedControlsControlWindow <- 0
   for (i in 1:nrow(outcomeReference)) {
     if (outcomeReference$modelFile[i] != "") {
-      model <- readRDS(file.path(outcomeReference$modelFile[i]))
+      model <- readRDS(file.path(outputFolder, outcomeReference$modelFile[i]))
       result$rr[i] <- if (is.null(coef(model)))
         NA else exp(coef(model))
       result$ci95lb[i] <- if (is.null(coef(model)))

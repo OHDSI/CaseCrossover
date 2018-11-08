@@ -18,8 +18,10 @@ vignette: >
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(CaseCrossover)
+outputFolder <- "s:/temp/vignetteCaseCrossover2"
+
 knitr::opts_chunk$set(
-  cache=FALSE,
+  cache = FALSE,
   comment = "#>",
   error = FALSE,
   tidy = FALSE)
@@ -55,11 +57,13 @@ The function arguments you need to define have been divided into four groups:
 
 We need to tell R how to connect to the server where the data are. `CaseCrossover` uses the `DatabaseConnector` package, which provides the `createConnectionDetails` function. Type `?createConnectionDetails` for the specific settings required for the various database management systems (DBMS). For example, one might connect to a PostgreSQL database using this code:
 
-```{r tidy=FALSE,eval=TRUE}
+```{r tidy=FALSE,eval=FALSE}
 connectionDetails <- createConnectionDetails(dbms = "postgresql", 
                                              server = "localhost/ohdsi", 
                                              user = "joe", 
                                              password = "supersecret")
+
+outputFolder <- "/home/ccrOutput"
 
 cdmDatabaseSchema <- "my_cdm_data"
 cohortDatabaseSchema <- "my_work_schema"
@@ -329,16 +333,16 @@ The result of the `runCcrAnalyses()` is a data frame with one row per exposure-o
 ccrModelFile <- result$modelFile[result$exposureId == 1124300 & 
                                    result$outcomeId == 1 &
                                    result$analysisId == 1]
-ccModel <- readRDS(ccrModelFile)
+ccModel <- readRDS(file.path(outputFolder, ccrModelFile))
 summary(ccrModel)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
   result <- readRDS("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")
   ccrModelFile <- result$modelFile[result$exposureId == 1124300 & 
                                      result$outcomeId == 1 &
                                      result$analysisId == 1]
-  ccrModel <- readRDS(ccrModelFile)
+  ccrModel <- readRDS(file.path(outputFolder, ccrModelFile))
   summary(ccrModel)
 }
 ```
@@ -347,12 +351,12 @@ Note that some of the file names will appear several times in the table. For exa
 
 We can create a summary of the results using `summarizeCcrAnalyses()`:
 ```{r tidy=FALSE,eval=FALSE}
-analysisSum <- summarizeCcrAnalyses(result)
+analysisSum <- summarizeCcrAnalyses(result, outputFolder)
 head(analysisSum)
 ```
 ```{r echo=FALSE,message=FALSE}
-if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
-  analysisSum <- summarizeCcrAnalyses(result)
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
+  analysisSum <- summarizeCcrAnalyses(result, outputFolder)
   head(analysisSum)
 }
 ```
@@ -377,7 +381,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 1 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 1 & analysisSum$exposureId == 1124300, ]
@@ -402,7 +406,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 2 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 2 & analysisSum$exposureId == 1124300, ]
@@ -427,7 +431,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 3 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 3 & analysisSum$exposureId == 1124300, ]
@@ -452,7 +456,7 @@ plotCalibrationEffect(logRrNegatives = negCons$logRr,
                       null)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
-if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")){
+if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
   library(EmpiricalCalibration)
   negCons <- analysisSum[analysisSum$analysisId == 4 & analysisSum$exposureId != 1124300, ]
   ei <-  analysisSum[analysisSum$analysisId == 4 & analysisSum$exposureId == 1124300, ]
