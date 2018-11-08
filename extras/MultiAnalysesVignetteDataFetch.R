@@ -25,7 +25,7 @@ options(fftempdir = "s:/fftemp")
 pw <- NULL
 dbms <- "pdw"
 user <- NULL
-cdmDatabaseSchema <- "cdm_truven_mdcd_v521.dbo"
+cdmDatabaseSchema <- "cdm_truven_mdcd_v780.dbo"
 cohortDatabaseSchema <- "scratch.dbo"
 oracleTempSchema <- NULL
 cohortTable <- "mschuemi_cc_vignette"
@@ -81,7 +81,6 @@ negativeControls <- c(705178,
                       1560278,
                       1584910,
                       19010309,
-                      19044727,
                       40163731)
 diclofenac <- 1124300
 giBleed <- 1
@@ -158,19 +157,6 @@ saveCcrAnalysisList(ccrAnalysisList, "s:/temp/vignetteCaseCrossover2/ccrAnalysis
 
 # exposureOutcomeNcList <- loadExposureOutcomeNestingCohortList('s:/temp/vignetteCaseCrossover2/exposureOutcomeNestingCohortList.txt')
 # ccrAnalysisList <- loadCcrAnalysisList('s:/temp/vignetteCaseCrossover2/ccrAnalysisList.txt')
-
-outcomeDatabaseSchema <- cohortDatabaseSchema
-outcomeTable <- cohortTable
-nestingCohortDatabaseSchema <- cohortDatabaseSchema
-nestingCohortTable <- cohortTable
-exposureDatabaseSchema <- cdmDatabaseSchema
-exposureTable <- "drug_era"
-getDbCaseCrossoverDataThreads = 1
-selectSubjectsToIncludeThreads = 1
-getExposureStatusThreads = 1
-fitCaseCrossoverModelThreads = 1
-exposureOutcomeNestingCohortList <- exposureOutcomeNcList
-
 
 result <- runCcrAnalyses(connectionDetails = connectionDetails,
                         cdmDatabaseSchema = cdmDatabaseSchema,

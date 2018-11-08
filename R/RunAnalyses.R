@@ -172,7 +172,7 @@ runCcrAnalyses <- function(connectionDetails,
     } else {
       idx <- outcomeReference$analysisId %in% analysesIds
       outcomeIds <- unique(outcomeReference$outcomeId[idx])
-      cdDataFileName <- .createCaseCrossoverDataFileName(outputFolder, d)
+      cdDataFileName <- .createCaseCrossoverDataFileName(d)
       idx <- outcomeReference$analysisId %in% analysesIds
       outcomeReference$caseCrossoverDataFolder[idx] <- cdDataFileName
       if (!file.exists(file.path(outputFolder, cdDataFileName))) {
