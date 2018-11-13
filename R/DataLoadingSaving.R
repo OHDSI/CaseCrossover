@@ -86,7 +86,13 @@
 #' @param studyEndDate                        A calendar date specifying the maximum date where data is
 #'                                            used. Date format is 'yyyymmdd'.
 #' @param getTimeControlData                  Should data for time controls be fetched? (needed for
-#'                                            case-time-control analyses.
+#'                                            case-time-control analyses).
+#' @param maxNestingCohortSize                If the nesting cohort is larger than
+#'                                            this number it will be sampled to this size. \code{maxCohortSize = 0}
+#'                                            indicates no maximum size. (needed for case-time-control analyses).
+#' @param maxCasesPerOutcome                  If there are more than this number of cases for a single
+#'                                            outcome cases will be sampled to this size. \code{maxCasesPerOutcome = 0}
+#'                                            indicates no maximum size.
 #'
 #' @export
 getDbCaseCrossoverData <- function(connectionDetails,
@@ -106,7 +112,9 @@ getDbCaseCrossoverData <- function(connectionDetails,
                                    exposureIds = c(),
                                    studyStartDate = "",
                                    studyEndDate = "",
-                                   getTimeControlData = FALSE) {
+                                   getTimeControlData = FALSE,
+                                   maxNestingCohortSize = 1e7,
+                                   maxCasesPerOutcome = 5e5) {
   if (!getTimeControlData)
     attr(useNestingCohort, "caseCrossover") <- TRUE
   result <- CaseControl::getDbCaseData(connectionDetails = connectionDetails,
@@ -126,7 +134,9 @@ getDbCaseCrossoverData <- function(connectionDetails,
                                        exposureTable = exposureTable,
                                        exposureIds = exposureIds,
                                        studyStartDate = studyStartDate,
-                                       studyEndDate = studyEndDate)
+                                       studyEndDate = studyEndDate,
+                                       maxNestingCohortSize = maxNestingCohortSize,
+                                       maxCasesPerOutcome = maxCasesPerOutcome)
 
   class(result) <- "caseCrossoverData"
   return(result)

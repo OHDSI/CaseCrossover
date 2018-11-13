@@ -6,7 +6,8 @@
 \usage{
 createGetDbCaseCrossoverDataArgs(useNestingCohort = FALSE,
   useObservationEndAsNestingEndDate = TRUE, getVisits = FALSE,
-  studyStartDate = "", studyEndDate = "", getTimeControlData = FALSE)
+  studyStartDate = "", studyEndDate = "", getTimeControlData = FALSE,
+  maxNestingCohortSize = 1e+07, maxCasesPerOutcome = 5e+05)
 }
 \arguments{
 \item{useNestingCohort}{Should the study be nested in a cohort (e.g. people witha
@@ -27,7 +28,15 @@ isused. Date format is 'yyyymmdd'.}
 isused. Date format is 'yyyymmdd'.}
 
 \item{getTimeControlData}{Should data for time controls be fetched? (needed
-forcase-time-control analyses.}
+forcase-time-control analyses).}
+
+\item{maxNestingCohortSize}{If the nesting cohort is larger thanthis number it will
+be sampled to this size. maxCohortSize = 0indicates no
+maximum size. (needed for case-time-control analyses).}
+
+\item{maxCasesPerOutcome}{If there are more than this number of cases for a
+singleoutcome cases will be sampled to this size.
+maxCasesPerOutcome = 0indicates no maximum size.}
 }
 \description{
 Create a parameter object for the function getDbCaseCrossoverData

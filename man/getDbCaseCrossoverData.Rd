@@ -14,7 +14,8 @@ getDbCaseCrossoverData(connectionDetails, cdmDatabaseSchema,
   useObservationEndAsNestingEndDate = TRUE, getVisits = FALSE,
   exposureDatabaseSchema = cdmDatabaseSchema,
   exposureTable = "drug_era", exposureIds = c(), studyStartDate = "",
-  studyEndDate = "", getTimeControlData = FALSE)
+  studyEndDate = "", getTimeControlData = FALSE,
+  maxNestingCohortSize = 1e+07, maxCasesPerOutcome = 5e+05)
 }
 \arguments{
 \item{connectionDetails}{An R object of type \code{ConnectionDetails} created
@@ -95,7 +96,15 @@ used. Date format is 'yyyymmdd'.}
 used. Date format is 'yyyymmdd'.}
 
 \item{getTimeControlData}{Should data for time controls be fetched? (needed for
-case-time-control analyses.}
+case-time-control analyses).}
+
+\item{maxNestingCohortSize}{If the nesting cohort is larger than
+this number it will be sampled to this size. \code{maxCohortSize = 0}
+indicates no maximum size. (needed for case-time-control analyses).}
+
+\item{maxCasesPerOutcome}{If there are more than this number of cases for a single
+outcome cases will be sampled to this size. \code{maxCasesPerOutcome = 0}
+indicates no maximum size.}
 }
 \value{
 Returns an object of type \code{caseCrossoverData}, containing information on the cases, the

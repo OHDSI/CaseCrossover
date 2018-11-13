@@ -18,7 +18,13 @@
 #' @param studyEndDate                        A calendar date specifying the maximum date where data
 #'                                            isused. Date format is 'yyyymmdd'.
 #' @param getTimeControlData                  Should data for time controls be fetched? (needed
-#'                                            forcase-time-control analyses.
+#'                                            forcase-time-control analyses).
+#' @param maxNestingCohortSize                If the nesting cohort is larger thanthis number it will
+#'                                            be sampled to this size. maxCohortSize = 0indicates no
+#'                                            maximum size. (needed for case-time-control analyses).
+#' @param maxCasesPerOutcome                  If there are more than this number of cases for a
+#'                                            singleoutcome cases will be sampled to this size.
+#'                                            maxCasesPerOutcome = 0indicates no maximum size.
 #'
 #' @export
 createGetDbCaseCrossoverDataArgs <- function(useNestingCohort = FALSE,
@@ -26,7 +32,9 @@ createGetDbCaseCrossoverDataArgs <- function(useNestingCohort = FALSE,
                                              getVisits = FALSE,
                                              studyStartDate = "",
                                              studyEndDate = "",
-                                             getTimeControlData = FALSE) {
+                                             getTimeControlData = FALSE,
+                                             maxNestingCohortSize = 1e+07,
+                                             maxCasesPerOutcome = 5e+05) {
   # First: get default values:
   analysis <- list()
   for (name in names(formals(createGetDbCaseCrossoverDataArgs))) {
