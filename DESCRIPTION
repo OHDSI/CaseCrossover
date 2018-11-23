@@ -2,11 +2,15 @@ Package: CaseCrossover
 Type: Package
 Title: Case-Crossover
 Version: 1.1.0
-Date: 2018-011-07
-Author: Martijn Schuemie
+Date: 2018-11-23
+Authors@R: c(
+    person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut", "cre"))
+    )
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: An R package for performing case-crossover and case-time-control analyses in an observational database in the OMOP Common Data Model.
 VignetteBuilder: knitr
+URL: https://github.com/OHDSI/CaseCrossover
+BugReports: https://github.com/OHDSI/CaseCrossover/issues
 Depends:
     R (>= 3.2.2),
     DatabaseConnector (>= 1.3.0),

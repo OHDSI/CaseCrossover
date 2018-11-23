@@ -1,0 +1,732 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Single studies using the CaseCrossover package},
+            pdfauthor={Martijn J. Schuemie},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Single studies using the CaseCrossover package}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Martijn J. Schuemie}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2018-11-23}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This vignette describes how you can use the \texttt{CaseCrossover}
+package to perform a single case-crossover study. We will walk through
+all the steps needed to perform an exemplar study, and we have selected
+the well-studied topic of the effect of NSAIDs on gastrointestinal (GI)
+bleeding-related hospitalization. For simplicity, we focus on one NSAID:
+diclofenac.
+
+\hypertarget{installation-instructions}{%
+\section{Installation instructions}\label{installation-instructions}}
+
+Before installing the \texttt{CaseCrossover} package make sure you have
+Java available. Java can be downloaded from
+\href{http://www.java.com}{www.java.com}. For Windows users, RTools is
+also necessary. RTools can be downloaded from
+\href{http://cran.r-project.org/bin/windows/Rtools/}{CRAN}.
+
+The \texttt{CaseCrossover} package is currently maintained in a
+\href{https://github.com/OHDSI/CaseCrossover}{Github repository}, and
+has dependencies on other packages in Github. All of these packages can
+be downloaded and installed from within R using the \texttt{drat}
+package:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"drat"}\NormalTok{)}
+\NormalTok{drat}\OperatorTok{::}\KeywordTok{addRepo}\NormalTok{(}\StringTok{"OHDSI"}\NormalTok{)}
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"CaseCrossover"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Once installed, you can type \texttt{library(CaseCrossover)} to load the
+package.
+
+\hypertarget{overview}{%
+\section{Overview}\label{overview}}
+
+In the \texttt{CaseCrossover} package a study requires four steps:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Loading data on the cases (and potential controls when performing a
+  case-time-control analysis) from the database needed for matching.
+\item
+  Selecting subjects to include in the study.
+\item
+  Determining exposure status for cases (and controls) based on a
+  definition of the risk windows.
+\item
+  Fitting the model using conditional logistic regression.
+\end{enumerate}
+
+In the following sections these steps will be demonstrated.
+
+\hypertarget{configuring-the-connection-to-the-server}{%
+\section{Configuring the connection to the
+server}\label{configuring-the-connection-to-the-server}}
+
+We need to tell R how to connect to the server where the data are.
+\texttt{CaseCrossover} uses the \texttt{DatabaseConnector} package,
+which provides the \texttt{createConnectionDetails} function. Type
+\texttt{?createConnectionDetails} for the specific settings required for
+the various database management systems (DBMS). For example, one might
+connect to a PostgreSQL database using this code:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{connectionDetails <-}\StringTok{ }\KeywordTok{createConnectionDetails}\NormalTok{(}\DataTypeTok{dbms =} \StringTok{"postgresql"}\NormalTok{, }
+                                             \DataTypeTok{server =} \StringTok{"localhost/ohdsi"}\NormalTok{, }
+                                             \DataTypeTok{user =} \StringTok{"joe"}\NormalTok{, }
+                                             \DataTypeTok{password =} \StringTok{"supersecret"}\NormalTok{)}
+
+\NormalTok{cdmDatabaseSchema <-}\StringTok{ "my_cdm_data"}
+\NormalTok{cohortDatabaseSchema <-}\StringTok{ "my_results"}
+\NormalTok{cohortTable <-}\StringTok{ "my_cohorts"}
+\NormalTok{cdmVersion <-}\StringTok{ "5"}
+\end{Highlighting}
+\end{Shaded}
+
+The last three lines define the \texttt{cdmDatabaseSchema} and
+\texttt{cohortDatabaseSchema} variables,as well as the CDM version.
+We'll use these later to tell R where the data in CDM format live, where
+we have stored our cohorts of interest, and what version CDM is used.
+Note that for Microsoft SQL Server, databaseschemas need to specify both
+the database and the schema, so for example
+\texttt{cdmDatabaseSchema\ \textless{}-\ "my\_cdm\_data.dbo"}.
+
+\hypertarget{preparing-the-health-outcome-of-interest-and-nesting-cohort}{%
+\section{Preparing the health outcome of interest and nesting
+cohort}\label{preparing-the-health-outcome-of-interest-and-nesting-cohort}}
+
+We need to define the exposures and outcomes for our study.
+Additionally, we can specify a cohort in which to nest the study. The
+CDM also already contains standard cohorts in the \texttt{drug\_era} and
+\texttt{condition\_era} table that could be used if those meet the
+requirement of the study, but often we require custom cohort
+definitions. One way to define cohorts is by writing SQL statements
+against the OMOP CDM that populate a table of events in which we are
+interested. The resulting table should have the same structure as the
+\texttt{cohort} table in the CDM, meaning it should have the fields
+\texttt{cohort\_definition\_id}, \texttt{cohort\_start\_date},
+\texttt{cohort\_end\_date},and \texttt{subject\_id}.
+
+For our example study, we will rely on \texttt{drug\_era} to define
+exposures, and we have created a file called \emph{vignette.sql} with
+the following contents to define the outcome and the nesting cohort:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{/***********************************}
+\CommentTok{File vignette.sql }
+\CommentTok{***********************************/}
+
+\KeywordTok{IF}\NormalTok{ OBJECT_ID(}\StringTok{'@cohortDatabaseSchema.@cohortTable'}\NormalTok{, }\StringTok{'U'}\NormalTok{) }\KeywordTok{IS} \KeywordTok{NOT} \KeywordTok{NULL}
+  \KeywordTok{DROP} \KeywordTok{TABLE}\NormalTok{ @cohortDatabaseSchema.@cohortTable;}
+
+\KeywordTok{SELECT} \DecValTok{1} \KeywordTok{AS}\NormalTok{ cohort_definition_id,}
+\NormalTok{    condition_start_date }\KeywordTok{AS}\NormalTok{ cohort_start_date,}
+\NormalTok{    condition_end_date }\KeywordTok{AS}\NormalTok{ cohort_end_date,}
+\NormalTok{    condition_occurrence.person_id }\KeywordTok{AS}\NormalTok{ subject_id}
+\KeywordTok{INTO}\NormalTok{ @cohortDatabaseSchema.@cohortTable}
+\KeywordTok{FROM}\NormalTok{ @cdmDatabaseSchema.condition_occurrence}
+\KeywordTok{INNER} \KeywordTok{JOIN}\NormalTok{ @cdmDatabaseSchema.visit_occurrence}
+    \KeywordTok{ON}\NormalTok{ condition_occurrence.visit_occurrence_id = visit_occurrence.visit_occurrence_id}
+\KeywordTok{WHERE}\NormalTok{ condition_concept_id }\KeywordTok{IN}\NormalTok{ (}
+        \KeywordTok{SELECT}\NormalTok{ descendant_concept_id}
+        \KeywordTok{FROM}\NormalTok{ @cdmDatabaseSchema.concept_ancestor}
+        \KeywordTok{WHERE}\NormalTok{ ancestor_concept_id = }\DecValTok{192671} \CommentTok{-- GI - Gastrointestinal haemorrhage}
+\NormalTok{        )}
+    \KeywordTok{AND}\NormalTok{ visit_occurrence.visit_concept_id }\KeywordTok{IN}\NormalTok{ (}\DecValTok{9201}\NormalTok{, }\DecValTok{9203}\NormalTok{);}
+    
+\KeywordTok{INSERT} \KeywordTok{INTO}\NormalTok{ @cohortDatabaseSchema.@cohortTable }
+\NormalTok{(cohort_definition_id, cohort_start_date, cohort_end_date, subject_id)}
+\KeywordTok{SELECT} \DecValTok{2} \KeywordTok{AS}\NormalTok{ cohort_definition_id,}
+    \FunctionTok{MIN}\NormalTok{(condition_start_date) }\KeywordTok{AS}\NormalTok{ cohort_start_date,}
+    \KeywordTok{NULL} \KeywordTok{AS}\NormalTok{ cohort_end_date,}
+\NormalTok{    person_id }\KeywordTok{AS}\NormalTok{ subject_id}
+\KeywordTok{FROM}\NormalTok{ @cdmDatabaseSchema.condition_occurrence}
+\KeywordTok{WHERE}\NormalTok{ condition_concept_id }\KeywordTok{IN}\NormalTok{ (}
+        \KeywordTok{SELECT}\NormalTok{ descendant_concept_id}
+        \KeywordTok{FROM}\NormalTok{ @cdmDatabaseSchema.concept_ancestor}
+        \KeywordTok{WHERE}\NormalTok{ ancestor_concept_id = }\DecValTok{80809} \CommentTok{-- rheumatoid arthritis}
+\NormalTok{        )}
+\KeywordTok{GROUP} \KeywordTok{BY}\NormalTok{ person_id;}
+\end{Highlighting}
+\end{Shaded}
+
+This is parameterized SQL which can be used by the \texttt{SqlRender}
+package. We use parameterized SQL so we do not have to pre-specify the
+names of the CDM and cohort schemas. That way, if we want to run the SQL
+on a different schema, we only need to change the parameter values; we
+do not have to change the SQL code. By also making use of translation
+functionality in \texttt{SqlRender}, we can make sure the SQL code can
+be run in many different environments.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(SqlRender)}
+\NormalTok{sql <-}\StringTok{ }\KeywordTok{readSql}\NormalTok{(}\StringTok{"vignette.sql"}\NormalTok{)}
+\NormalTok{sql <-}\StringTok{ }\KeywordTok{renderSql}\NormalTok{(sql,}
+                 \DataTypeTok{cdmDatabaseSchema =}\NormalTok{ cdmDatabaseSchema, }
+                 \DataTypeTok{cohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema}
+                 \DataTypeTok{cohortTable =}\NormalTok{ cohortTable)}\OperatorTok{$}\NormalTok{sql}
+\NormalTok{sql <-}\StringTok{ }\KeywordTok{translateSql}\NormalTok{(sql, }\DataTypeTok{targetDialect =}\NormalTok{ connectionDetails}\OperatorTok{$}\NormalTok{dbms)}\OperatorTok{$}\NormalTok{sql}
+
+\NormalTok{connection <-}\StringTok{ }\KeywordTok{connect}\NormalTok{(connectionDetails)}
+\KeywordTok{executeSql}\NormalTok{(connection, sql)}
+\end{Highlighting}
+\end{Shaded}
+
+In this code, we first read the SQL from the file into memory. In the
+next line, we replace the three parameter names with the actual values.
+We then translate the SQL into the dialect appropriate for the DBMS we
+already specified in the \texttt{connectionDetails}. Next, we connect to
+the server, and submit the rendered and translated SQL.
+
+If all went well, we now have a table with the outcome of interest and
+the nesting cohort. We can see how many events:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sql <-}\StringTok{ }\KeywordTok{paste}\NormalTok{(}\StringTok{"SELECT cohort_definition_id, COUNT(*) AS count"}\NormalTok{,}
+             \StringTok{"FROM @cohortDatabaseSchema.@cohortTable"}\NormalTok{,}
+             \StringTok{"GROUP BY cohort_definition_id"}\NormalTok{)}
+\NormalTok{sql <-}\StringTok{ }\KeywordTok{renderSql}\NormalTok{(sql, }
+                 \DataTypeTok{cohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema, }
+                 \DataTypeTok{cohortTable =}\NormalTok{ cohortTable)}\OperatorTok{$}\NormalTok{sql}
+\NormalTok{sql <-}\StringTok{ }\KeywordTok{translateSql}\NormalTok{(sql, }\DataTypeTok{targetDialect =}\NormalTok{ connectionDetails}\OperatorTok{$}\NormalTok{dbms)}\OperatorTok{$}\NormalTok{sql}
+
+\KeywordTok{querySql}\NormalTok{(connection, sql)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>   cohort_definition_id  count
+#> 1                    1 422274
+#> 2                    2 118430
+\end{verbatim}
+
+\hypertarget{extracting-the-data-from-the-server}{%
+\section{Extracting the data from the
+server}\label{extracting-the-data-from-the-server}}
+
+Now we can tell \texttt{CaseCrossover} to extract the necessary data on
+the cases:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{caseCrossoverData <-}\StringTok{ }\KeywordTok{getDbCaseCrossoverData}\NormalTok{(}\DataTypeTok{connectionDetails =}\NormalTok{ connectionDetails,}
+                                            \DataTypeTok{cdmDatabaseSchema =}\NormalTok{ cdmDatabaseSchema,}
+                                            \DataTypeTok{oracleTempSchema =}\NormalTok{ oracleTempSchema,}
+                                            \DataTypeTok{outcomeDatabaseSchema =}\NormalTok{ cohortDatabaseSchema,}
+                                            \DataTypeTok{outcomeTable =}\NormalTok{ cohortTable,}
+                                            \DataTypeTok{outcomeId =} \DecValTok{1}\NormalTok{,}
+                                            \DataTypeTok{exposureDatabaseSchema =}\NormalTok{ cdmDatabaseSchema,}
+                                            \DataTypeTok{exposureTable =} \StringTok{"drug_era"}\NormalTok{,}
+                                            \DataTypeTok{exposureIds =} \DecValTok{1124300}\NormalTok{,}
+                                            \DataTypeTok{useNestingCohort =} \OtherTok{TRUE}\NormalTok{,}
+                                            \DataTypeTok{nestingCohortDatabaseSchema =}\NormalTok{ cohortDatabaseSchema,}
+                                            \DataTypeTok{nestingCohortTable =}\NormalTok{ cohortTable,}
+                                            \DataTypeTok{nestingCohortId =} \DecValTok{2}\NormalTok{,}
+                                            \DataTypeTok{useObservationEndAsNestingEndDate =} \OtherTok{TRUE}\NormalTok{,}
+                                            \DataTypeTok{getTimeControlData =} \OtherTok{TRUE}\NormalTok{)}
+
+
+\NormalTok{caseCrossoverData}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Case-crossover data object
+#> 
+#> Outcome concept ID(s): 1
+#> Nesting cohort ID: 2
+#> Exposure concept ID(s): 1124300
+\end{verbatim}
+
+There are many parameters, but they are all documented in the
+\texttt{CaseCrossover} manual. In short, we are pointing the function to
+the table created earlier and indicating which concept ID in that table
+identifies the outcome. Note that it is possible to fetch the data for
+multiple outcomes at once for efficiency. We specify that we will use
+the \texttt{drug\_era} table to identify exposures, and will only
+retrieve data on exposure to Diclofenac (concept ID 1124300). We
+furthermore specify a nesting cohort in the same table, meaning that
+people will be eligible to be cases if and when they fall inside the
+specified cohort. In this case, the nesting cohort starts when people
+have their first diagnosis of rheumatoid arthritis. We use the
+\texttt{useObservationEndAsNestingEndDate} argument to indicate people
+will stay eligible until the end of their observation period. We
+furthermore specify we want to retrieve data on time controls, which
+will be used later to adjust for time-trends in exposures, effectively
+turning the case-crossover study into a case-time-control study.
+
+Data about the cases (and potential time controls) are extracted from
+the server and stored in the \texttt{caseCrossoverData} object. This
+object uses the package \texttt{ff} to store information in a way that
+ensures R does not run out of memory, even when the data are large.
+
+We can use the generic \texttt{summary()} function to view some more
+information of the data we extracted:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(caseCrossoverData)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Case-crossover data object summary
+#> 
+#> Outcome concept ID(s): 1
+#> Nesting cohort ID: 2
+#> 
+#> Population count: 168765
+#> Population window count: 168765
+#> 
+#> Outcome counts:
+#>   Event count Case count
+#> 1       20309      12821
+#> 
+#> Exposure counts:
+#>         Exposure count Person count
+#> 1124300          43721        21977
+\end{verbatim}
+
+\hypertarget{saving-the-data-to-file}{%
+\subsection{Saving the data to file}\label{saving-the-data-to-file}}
+
+Creating the \texttt{caseCrossoverData} object can take considerable
+computing time, and it is probably a good idea to save it for future
+sessions. Because \texttt{caseCrossoverData} uses \texttt{ff}, we cannot
+use R's regular save function. Instead, we'll have to use the
+\texttt{saveCaseCrossoverData()} function:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{saveCaseCrossoverData}\NormalTok{(caseCrossoverData, }\StringTok{"GiBleed"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+We can use the \texttt{loadCaseCrossoverData()} function to load the
+data in a future session.
+
+\hypertarget{selecting-subjects}{%
+\section{Selecting subjects}\label{selecting-subjects}}
+
+Next, we can use the data to select matched controls per case:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subjects <-}\StringTok{ }\KeywordTok{selectSubjectsToInclude}\NormalTok{(}\DataTypeTok{caseCrossoverData =}\NormalTok{ caseCrossoverData,}
+                                    \DataTypeTok{outcomeId =} \DecValTok{1}\NormalTok{,}
+                                    \DataTypeTok{firstOutcomeOnly =} \OtherTok{TRUE}\NormalTok{,}
+                                    \DataTypeTok{washoutPeriod =} \DecValTok{183}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+In this example, we specify a washout period of 180 days, meaning that
+cases (and controls) are required to have a minimum of 180 days of
+observation prior to the index date. We also specify we will only
+consider the first outcome per person. If a person's first outcome is
+within the washout period, that person will be removed from the
+analysis.
+
+The \texttt{subjects} object is a data frame with five columns:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(subjects)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>   personId  indexDate isCase stratumId observationPeriodStartDate
+#> 1        3 2009-10-10   TRUE         1                 2001-10-12
+#> 2      123 2009-10-11   TRUE         2                 2002-01-11
+#> 3      345 2009-10-09   TRUE         3                 2001-05-03
+#> 4        6 2010-05-04   TRUE         4                 2003-02-01
+#> 5      234 2010-05-04   TRUE         5                 2007-01-01
+#> 6      567 2010-05-05   TRUE         6                 2006-03-01
+\end{verbatim}
+
+We can show the attrition to see why cases and events were filtered:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{getAttritionTable}\NormalTok{(subjects)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>                      description eventCount caseCount
+#> 1                Original counts      20309     12821
+#> 2               First event only      12821     12821
+#> 3 Require 183 days of prior obs.       7555      7555
+\end{verbatim}
+
+\hypertarget{determining-exposure-status}{%
+\section{Determining exposure
+status}\label{determining-exposure-status}}
+
+We can now evaluate the exposure status of the cases in various time
+windows relative to the index date:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{exposureStatus <-}\StringTok{ }\KeywordTok{getExposureStatus}\NormalTok{(}\DataTypeTok{subjects =}\NormalTok{ subjects,}
+                                    \DataTypeTok{caseCrossoverData =}\NormalTok{ caseCrossoverData,}
+                                    \DataTypeTok{exposureId =} \DecValTok{1124300}\NormalTok{,}
+                                    \DataTypeTok{firstExposureOnly =} \OtherTok{FALSE}\NormalTok{,}
+                                    \DataTypeTok{riskWindowStart =} \DecValTok{-30}\NormalTok{,}
+                                    \DataTypeTok{riskWindowEnd =} \DecValTok{0}\NormalTok{,}
+                                    \DataTypeTok{controlWindowOffsets =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{60}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Here we specify we are intested in all exposures, not just the first
+one, and that we will use two windows per subject: a case window defined
+as the 30 days preceding (and including) the index date, and a control
+window which has the same length as the case window but is shifted 60
+days backwards, so from 90 days to (and including) 60 days prior to the
+index date. Note that multiple control windows can be specified by
+specifying more control window offsets.
+
+Exposure status is then determined based on whether an exposure overlaps
+with one of the windows. The resulting \texttt{exposureStatus} object is
+a data frame with six columns:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(exposureStatus)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#>   personId  indexDate isCase stratumId isCaseWindow exposed
+#> 1        3 2009-10-10   TRUE         1         TRUE       0
+#> 2      123 2009-10-11   TRUE         2         TRUE       0
+#> 3      345 2009-10-09   TRUE         3         TRUE       0
+#> 4        6 2010-05-04   TRUE         4         TRUE       0
+#> 5      234 2010-05-04   TRUE         5         TRUE       0
+#> 6      567 2010-05-05   TRUE         6         TRUE       0
+\end{verbatim}
+
+\hypertarget{fitting-the-model}{%
+\section{Fitting the model}\label{fitting-the-model}}
+
+We can now fit the model, which is a logistic regression conditioned on
+the matched sets:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit <-}\StringTok{ }\KeywordTok{fitCaseCrossoverModel}\NormalTok{(exposureStatus)}
+
+\NormalTok{fit}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Case-Crossover fitted model
+#> Status: OK
+#> 
+#>           Estimate lower .95 upper .95    logRr seLogRr
+#> treatment 1.068966  0.747257  1.529176 0.066691  0.1827
+\end{verbatim}
+
+The generic functions \texttt{summary}, \texttt{coef}, and
+\texttt{confint} are implemented for the \texttt{fit} object:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Case-Crossover fitted model
+#> Status: OK
+#> 
+#>           Estimate lower .95 upper .95    logRr seLogRr
+#> treatment 1.068966  0.747257  1.529176 0.066691  0.1827
+#> 
+#> Counts
+#>       Cases Controls Control win. (cases) Control win. (controls)
+#> Count  7555        0                 7555                       0
+#>       Exposed case win. (cases) Exposed control win. (cases)
+#> Count                       160                          156
+#>       Exposed case win. (controls) Exposed control win. (controls)
+#> Count                            0                               0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{coef}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> [1] 0.06669137
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{confint}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> [1] -0.2913464  0.4247292
+\end{verbatim}
+
+\hypertarget{case-time-control}{%
+\section{Case-time-control}\label{case-time-control}}
+
+A variant of the case-crossover design is the case-time-control design.
+This design adjusts for time-trends in exposure by using a set of
+control subjects. To use this design in the \texttt{CaseCrossover}
+package, one needs to simply provide matching criteria to the
+\texttt{selectSubjectsToInclude} function:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{matchingCriteria <-}\StringTok{ }\KeywordTok{createMatchingCriteria}\NormalTok{(}\DataTypeTok{controlsPerCase =} \DecValTok{1}\NormalTok{,}
+                                           \DataTypeTok{matchOnAge =} \OtherTok{TRUE}\NormalTok{,}
+                                           \DataTypeTok{ageCaliper =} \DecValTok{2}\NormalTok{,}
+                                           \DataTypeTok{matchOnGender =} \OtherTok{TRUE}\NormalTok{)}
+
+\NormalTok{subjectsCtc <-}\StringTok{ }\KeywordTok{selectSubjectsToInclude}\NormalTok{(}\DataTypeTok{caseCrossoverData =}\NormalTok{ caseCrossoverData,}
+                                       \DataTypeTok{outcomeId =} \DecValTok{1}\NormalTok{,}
+                                       \DataTypeTok{firstOutcomeOnly =} \OtherTok{TRUE}\NormalTok{,}
+                                       \DataTypeTok{washoutPeriod =} \DecValTok{183}\NormalTok{,}
+                                       \DataTypeTok{matchingCriteria =}\NormalTok{ matchingCriteria)}
+\end{Highlighting}
+\end{Shaded}
+
+The other steps remain the same:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{exposureStatusCtc <-}\StringTok{ }\KeywordTok{getExposureStatus}\NormalTok{(}\DataTypeTok{subjects =}\NormalTok{ subjectsCtc,}
+                                       \DataTypeTok{caseCrossoverData =}\NormalTok{ caseCrossoverData,}
+                                       \DataTypeTok{exposureId =} \DecValTok{1124300}\NormalTok{,}
+                                       \DataTypeTok{firstExposureOnly =} \OtherTok{FALSE}\NormalTok{,}
+                                       \DataTypeTok{riskWindowStart =} \DecValTok{-30}\NormalTok{,}
+                                       \DataTypeTok{riskWindowEnd =} \DecValTok{0}\NormalTok{,}
+                                       \DataTypeTok{controlWindowOffsets =} \KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{60}\NormalTok{))}
+
+\NormalTok{fitCtc <-}\StringTok{ }\KeywordTok{fitCaseCrossoverModel}\NormalTok{(exposureStatusCtc)}
+
+\KeywordTok{summary}\NormalTok{(fitCtc)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> Case-Crossover fitted model
+#> Status: OK
+#> 
+#>           Estimate lower .95 upper .95   logRr seLogRr
+#> treatment  1.31394   0.77897   2.21630 0.27303  0.2667
+#> 
+#> Counts
+#>       Cases Controls Control win. (cases) Control win. (controls)
+#> Count  7555     7555                 7555                    7555
+#>       Exposed case win. (cases) Exposed control win. (cases)
+#> Count                       160                          156
+#>       Exposed case win. (controls) Exposed control win. (controls)
+#> Count                          136                             147
+\end{verbatim}
+
+\hypertarget{acknowledgments}{%
+\section{Acknowledgments}\label{acknowledgments}}
+
+Considerable work has been dedicated to provide the
+\texttt{CaseCrossover} package.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{citation}\NormalTok{(}\StringTok{"CaseCrossover"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> 
+#> To cite package 'CaseCrossover' in publications use:
+#> 
+#>   Martijn Schuemie (2018). CaseCrossover: Case-Crossover. R
+#>   package version 1.1.0. https://github.com/OHDSI/CaseCrossover
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Manual{,
+#>     title = {CaseCrossover: Case-Crossover},
+#>     author = {Martijn Schuemie},
+#>     year = {2018},
+#>     note = {R package version 1.1.0},
+#>     url = {https://github.com/OHDSI/CaseCrossover},
+#>   }
+\end{verbatim}
+
+Furthermore, \texttt{CaseCrossover} makes extensive use of the
+\texttt{Cyclops} package.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{citation}\NormalTok{(}\StringTok{"Cyclops"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+#> 
+#> To cite Cyclops in publications use:
+#> 
+#> Suchard MA, Simpson SE, Zorych I, Ryan P, Madigan D (2013).
+#> "Massive parallelization of serial inference algorithms for
+#> complex generalized linear models." _ACM Transactions on Modeling
+#> and Computer Simulation_, *23*, 10. <URL:
+#> http://dl.acm.org/citation.cfm?id=2414791>.
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Article{,
+#>     author = {M. A. Suchard and S. E. Simpson and I. Zorych and P. Ryan and D. Madigan},
+#>     title = {Massive parallelization of serial inference algorithms for complex generalized linear models},
+#>     journal = {ACM Transactions on Modeling and Computer Simulation},
+#>     volume = {23},
+#>     pages = {10},
+#>     year = {2013},
+#>     url = {http://dl.acm.org/citation.cfm?id=2414791},
+#>   }
+\end{verbatim}
+
+
+\end{document}
