@@ -62,7 +62,8 @@ selectSubjectsToInclude <- function(caseCrossoverData,
   if (!missing(matchingCriteria) && !is.null(matchingCriteria)) {
     # Case-time-control -------------------------------------------------------
     if (nrow(caseCrossoverData$nestingCohorts) == length(unique(caseCrossoverData$cases$nestingCohortId)))
-      stop("Case-time-control analysis specified, but data does not contain time control data. Please set getTimeControlData to TRUE when loading the data.")
+      if (!(nrow(caseCrossoverData$cases) == 1 && is.na(ff::as.ram(caseCrossoverData$cases$nestingCohortId))))
+        stop("Case-time-control analysis specified, but data does not contain time control data. Please set getTimeControlData to TRUE when loading the data.")
     caseControls <- CaseControl::selectControls(caseData = caseCrossoverData,
                                                 outcomeId = outcomeId,
                                                 firstOutcomeOnly = firstOutcomeOnly,

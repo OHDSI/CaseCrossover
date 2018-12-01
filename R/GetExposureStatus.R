@@ -52,7 +52,9 @@ getExposureStatus <- function(subjects,
     stop("Risk window cannot start after index date")
   if (riskWindowEnd > 0)
     stop("Risk window cannot end after index date")
-
+  if (nrow(subjects) == 0) {
+    return(subjects)
+  }
   metaData <- attr(subjects, "metaData")
 
   # Create case window:
@@ -75,7 +77,7 @@ getExposureStatus <- function(subjects,
 
   # Subset exposures by exposureId, personId, and first exposures (if specified)
   idx <- caseCrossoverData$exposures$exposureId == exposureId
-  if (ffbase::any.ff(idx)) {
+  if (ffbase::any.ff(idx, na.rm = TRUE)) {
     exposures <- caseCrossoverData$exposures[idx, ]
     idx <- ffbase::`%in%`(exposures$personId, unique(subjects$personId))
     if (ffbase::any.ff(idx)) {

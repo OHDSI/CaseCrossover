@@ -29,33 +29,36 @@ fitCaseCrossoverModel <- function(exposureStatus) {
   treatmentEstimate <- NULL
   fit <- NULL
   status <- "NO MODEL FITTED"
-
-  caseTimeControl <- any(!exposureStatus$isCase)
-  if (caseTimeControl) {
-    ParallelLogger::logInfo("Fitting case-time-control model")
-    # StratumId links cases and controls. We just need a stratum ID that linkes windows:
-    exposureStatus$newStratumId <- exposureStatus$stratumId
-    exposureStatus$newStratumId[exposureStatus$isCase] <- exposureStatus$stratumId[exposureStatus$isCase] + max(exposureStatus$stratumId)
-
-    form <- formula(isCaseWindow ~ exposed +  exposed * isCase + strata(newStratumId))
-    # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId),
-    #                                           data = exposureStatus,
-    #                                           modelType = "clr_exact")
-    treatmentVar <- "exposed:isCaseTRUE"
+  if (nrow(exposureStatus) == 0) {
+    fit <- "NO DATA SO COULD NOT FIT"
   } else {
-    ParallelLogger::logInfo("Fitting case-crossover model")
-    form <- formula(isCaseWindow ~ exposed + strata(stratumId))
-    # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + strata(stratumId),
-    #                                           data = exposureStatus,
-    #                                           modelType = "clr_exact")
-    treatmentVar <- "exposed"
+    caseTimeControl <- any(!exposureStatus$isCase)
+    if (caseTimeControl) {
+      ParallelLogger::logInfo("Fitting case-time-control model")
+      # StratumId links cases and controls. We just need a stratum ID that linkes windows:
+      exposureStatus$newStratumId <- exposureStatus$stratumId
+      exposureStatus$newStratumId[exposureStatus$isCase] <- exposureStatus$stratumId[exposureStatus$isCase] + max(exposureStatus$stratumId)
+
+      form <- formula(isCaseWindow ~ exposed +  exposed * isCase + strata(newStratumId))
+      # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + isCase + exposed * isCase + strata(stratumId),
+      #                                           data = exposureStatus,
+      #                                           modelType = "clr_exact")
+      treatmentVar <- "exposed:isCaseTRUE"
+    } else {
+      ParallelLogger::logInfo("Fitting case-crossover model")
+      form <- formula(isCaseWindow ~ exposed + strata(stratumId))
+      # cyclopsData <- Cyclops::createCyclopsData(isCaseWindow ~ exposed + strata(stratumId),
+      #                                           data = exposureStatus,
+      #                                           modelType = "clr_exact")
+      treatmentVar <- "exposed"
+    }
+    fit <- tryCatch({
+      # Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
+      suppressWarnings(survival::clogit(form, data = exposureStatus))
+    }, error = function(e) {
+      e$message
+    })
   }
-  fit <- tryCatch({
-    # Cyclops::fitCyclopsModel(cyclopsData, prior = Cyclops::createPrior("none"))
-    suppressWarnings(survival::clogit(form, data = exposureStatus))
-  }, error = function(e) {
-    e$message
-  })
   if (is.character(fit)) {
     status <- fit
   # } else if (fit$return_flag == "ILLCONDITIONED") {
@@ -90,13 +93,25 @@ fitCaseCrossoverModel <- function(exposureStatus) {
   outcomeModel$outcomeModelTreatmentEstimate <- treatmentEstimate
   outcomeModel$outcomeModelCoefficients <- coefficients
   outcomeModel$outcomeModelStatus <- status
-  outcomeCounts <- data.frame(cases = sum(exposureStatus$isCase & exposureStatus$isCaseWindow),
-                              controls = sum(!exposureStatus$isCase &
-    exposureStatus$isCaseWindow), casesControlWindows = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow), controlsControlWindows = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow), exposedCasesCaseWindow = sum(exposureStatus$isCase &
-      exposureStatus$isCaseWindow & exposureStatus$exposed), exposedCasesControlWindow = sum(exposureStatus$isCase &
-      !exposureStatus$isCaseWindow & exposureStatus$exposed), exposedControlsCaseWindow = sum(!exposureStatus$isCase &
-      exposureStatus$isCaseWindow & exposureStatus$exposed), exposedControlsControlWindow = sum(!exposureStatus$isCase &
-      !exposureStatus$isCaseWindow & exposureStatus$exposed))
+  if (nrow(exposureStatus) == 0) {
+    outcomeCounts <- data.frame(cases = 0,
+                                controls = 0,
+                                casesControlWindows = 0,
+                                controlsControlWindows = 0,
+                                exposedCasesCaseWindow = 0,
+                                exposedCasesControlWindow = 0,
+                                exposedControlsCaseWindow = 0,
+                                exposedControlsControlWindow = 0)
+  } else {
+    outcomeCounts <- data.frame(cases = sum(exposureStatus$isCase & exposureStatus$isCaseWindow),
+                                controls = sum(!exposureStatus$isCase & exposureStatus$isCaseWindow),
+                                casesControlWindows = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow),
+                                controlsControlWindows = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow),
+                                exposedCasesCaseWindow = sum(exposureStatus$isCase & exposureStatus$isCaseWindow & exposureStatus$exposed),
+                                exposedCasesControlWindow = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow & exposureStatus$exposed),
+                                exposedControlsCaseWindow = sum(!exposureStatus$isCase & exposureStatus$isCaseWindow & exposureStatus$exposed),
+                                exposedControlsControlWindow = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow & exposureStatus$expose))
+  }
   outcomeModel$outcomeCounts <- outcomeCounts
   class(outcomeModel) <- "outcomeModel"
   delta <- Sys.time() - start

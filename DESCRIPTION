@@ -27,4 +27,4 @@ Suggests:
     EmpiricalCalibration
 License: Apache License 2.0
 NeedsCompilation: no
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
