@@ -1,8 +1,8 @@
 Package: CaseCrossover
 Type: Package
 Title: Case-Crossover
-Version: 1.1.0
-Date: 2018-11-23
+Version: 2.0.0
+Date: 2019-10-01
 Authors@R: c(
     person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut", "cre"))
     )
@@ -18,7 +18,7 @@ Depends:
 Imports:
     ff,
     ffbase (>= 0.12.1),
-    CaseControl (>= 1.3.2),
+    CaseControl (>= 2.0.0),
     ParallelLogger
 Suggests:
     testthat,
