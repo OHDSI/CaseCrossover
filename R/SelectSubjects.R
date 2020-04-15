@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of CaseCrossover
 #
@@ -64,33 +64,35 @@ selectSubjectsToInclude <- function(caseCrossoverData,
     if (nrow(caseCrossoverData$nestingCohorts) == length(unique(caseCrossoverData$cases$nestingCohortId)))
       if (!(nrow(caseCrossoverData$cases) == 1 && is.na(ff::as.ram(caseCrossoverData$cases$nestingCohortId))))
         stop("Case-time-control analysis specified, but data does not contain time control data. Please set getTimeControlData to TRUE when loading the data.")
+    matchingCriteria <- CaseControl::createMatchingCriteria(controlsPerCase = matchingCriteria$controlsPerCase,
+                                                            matchOnAge = matchingCriteria$matchOnAge,
+                                                            ageCaliper = matchingCriteria$ageCaliper,
+                                                            matchOnGender = matchingCriteria$matchOnGender,
+                                                            matchOnProvider = matchingCriteria$matchOnProvider,
+                                                            matchOnCareSite = matchingCriteria$matchOnCareSite,
+                                                            matchOnVisitDate = matchingCriteria$matchOnVisitDate,
+                                                            visitDateCaliper = matchingCriteria$visitDateCaliper,
+                                                            matchOnTimeInCohort = matchingCriteria$matchOnTimeInCohort,
+                                                            daysInCohortCaliper = matchingCriteria$daysInCohortCaliper,
+                                                            removedUnmatchedCases = TRUE)
     caseControls <- CaseControl::selectControls(caseData = caseCrossoverData,
                                                 outcomeId = outcomeId,
                                                 firstOutcomeOnly = firstOutcomeOnly,
                                                 washoutPeriod = washoutPeriod,
                                                 minAge = minAge,
                                                 maxAge = maxAge,
-                                                controlsPerCase = matchingCriteria$controlsPerCase,
-                                                matchOnAge = matchingCriteria$matchOnAge,
-                                                ageCaliper = matchingCriteria$ageCaliper,
-                                                matchOnGender = matchingCriteria$matchOnGender,
-                                                matchOnProvider = matchingCriteria$matchOnProvider,
-                                                matchOnCareSite = matchingCriteria$matchOnCareSite,
-                                                matchOnVisitDate = matchingCriteria$matchOnVisitDate,
-                                                visitDateCaliper = matchingCriteria$visitDateCaliper,
-                                                matchOnTimeInCohort = matchingCriteria$matchOnTimeInCohort,
-                                                daysInCohortCaliper = matchingCriteria$daysInCohortCaliper,
-                                                removedUnmatchedCases = TRUE)
+                                                controlSelectionCriteria = matchingCriteria)
   } else {
     # Case-crossover ----------------------------------------------------------
+    matchingCriteria <- CaseControl::createMatchingCriteria(controlsPerCase = 0,
+                                                            removedUnmatchedCases = FALSE)
     caseControls <- CaseControl::selectControls(caseData = caseCrossoverData,
                                                 outcomeId = outcomeId,
                                                 firstOutcomeOnly = firstOutcomeOnly,
                                                 washoutPeriod = washoutPeriod,
                                                 minAge = minAge,
                                                 maxAge = maxAge,
-                                                controlsPerCase = 0,
-                                                removedUnmatchedCases = FALSE)
+                                                controlSelectionCriteria = matchingCriteria)
   }
   metaData <- attr(caseControls, "metaData")
 

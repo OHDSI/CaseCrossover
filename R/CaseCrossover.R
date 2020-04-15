@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of CaseCrossover
 #
@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#' CaseCrossover
-#'
-#' @docType package
-#' @name CaseCrossover
+#' @keywords internal
+"_PACKAGE"
+
 #' @importFrom stats coef confint pnorm printCoefmat qnorm formula
 #' @importFrom survival strata
 #' @import DatabaseConnector

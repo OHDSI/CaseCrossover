@@ -2,7 +2,7 @@ Package: CaseCrossover
 Type: Package
 Title: Case-Crossover
 Version: 2.0.0
-Date: 2019-10-01
+Date: 2020-04-15
 Authors@R: c(
     person("Martijn", "Schuemie", , "schuemie@ohdsi.org", role = c("aut", "cre"))
     )
@@ -25,6 +25,9 @@ Suggests:
     knitr,
     rmarkdown,
     EmpiricalCalibration
+Remotes:
+    ohdsi/CaseControl
 License: Apache License 2.0
 NeedsCompilation: no
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
+Encoding: UTF-8

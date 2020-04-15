@@ -4,9 +4,15 @@
 \alias{getExposureStatus}
 \title{Get the exposure status for cases (and controls).}
 \usage{
-getExposureStatus(subjects, caseCrossoverData, exposureId,
-  firstExposureOnly = FALSE, riskWindowStart = -30,
-  riskWindowEnd = 0, controlWindowOffsets = c(-60))
+getExposureStatus(
+  subjects,
+  caseCrossoverData,
+  exposureId,
+  firstExposureOnly = FALSE,
+  riskWindowStart = -30,
+  riskWindowEnd = 0,
+  controlWindowOffsets = c(-60)
+)
 }
 \arguments{
 \item{subjects}{A data frame as generated using the

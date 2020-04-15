@@ -4,18 +4,28 @@
 \alias{getDbCaseCrossoverData}
 \title{Load case-crossover data from the database}
 \usage{
-getDbCaseCrossoverData(connectionDetails, cdmDatabaseSchema,
+getDbCaseCrossoverData(
+  connectionDetails,
+  cdmDatabaseSchema,
   oracleTempSchema = cdmDatabaseSchema,
   outcomeDatabaseSchema = cdmDatabaseSchema,
-  outcomeTable = "condition_era", outcomeIds = c(),
+  outcomeTable = "condition_era",
+  outcomeIds = c(),
   useNestingCohort = FALSE,
   nestingCohortDatabaseSchema = cdmDatabaseSchema,
-  nestingCohortTable = "cohort", nestingCohortId = NULL,
-  useObservationEndAsNestingEndDate = TRUE, getVisits = FALSE,
+  nestingCohortTable = "cohort",
+  nestingCohortId = NULL,
+  useObservationEndAsNestingEndDate = TRUE,
+  getVisits = FALSE,
   exposureDatabaseSchema = cdmDatabaseSchema,
-  exposureTable = "drug_era", exposureIds = c(), studyStartDate = "",
-  studyEndDate = "", getTimeControlData = FALSE,
-  maxNestingCohortSize = 1e+07, maxCasesPerOutcome = 5e+05)
+  exposureTable = "drug_era",
+  exposureIds = c(),
+  studyStartDate = "",
+  studyEndDate = "",
+  getTimeControlData = FALSE,
+  maxNestingCohortSize = 1e+07,
+  maxCasesPerOutcome = 5e+05
+)
 }
 \arguments{
 \item{connectionDetails}{An R object of type \code{ConnectionDetails} created
@@ -24,7 +34,7 @@ using the function \code{createConnectionDetails} in the
 
 \item{cdmDatabaseSchema}{The name of the database schema that contains the OMOP
 CDM instance.  Requires read permissions to this
-database. On SQL Server, this should specifiy both the
+database. On SQL Server, this should specify both the
 database and the schema, so for example
 'cdm_instance.dbo'.}
 

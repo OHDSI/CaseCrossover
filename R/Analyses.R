@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of CaseCrossover
 #
@@ -108,7 +108,7 @@ loadCcrAnalysisList <- function(file) {
 #' @details
 #' Create a set of hypotheses of interest, to be used with the \code{\link{runCcrAnalyses}} function.
 #'
-#' @param exposureId        A concept ID indentifying the target drug in the exposure table. If
+#' @param exposureId        A concept ID identifying the target drug in the exposure table. If
 #'                          multiple strategies for picking the exposure will be tested in the
 #'                          analysis, a named list of numbers can be provided instead. In the analysis,
 #'                          the name of the number to be used can be specified using the

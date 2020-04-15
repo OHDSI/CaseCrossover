@@ -9,13 +9,13 @@ branches:
 r_packages:
   - covr
   - drat
+  - devtools
 
 r_github_packages:
   - OHDSI/ParallelLogger
   - OHDSI/SqlRender
   - OHDSI/DatabaseConnector
   - OHDSI/FeatureExtraction
-  - OHDSI/Cyclops
   - OHDSI/CaseControl
 
 before_script:

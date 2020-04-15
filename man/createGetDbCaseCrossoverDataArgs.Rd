@@ -4,10 +4,16 @@
 \alias{createGetDbCaseCrossoverDataArgs}
 \title{Create a parameter object for the function getDbCaseCrossoverData}
 \usage{
-createGetDbCaseCrossoverDataArgs(useNestingCohort = FALSE,
-  useObservationEndAsNestingEndDate = TRUE, getVisits = FALSE,
-  studyStartDate = "", studyEndDate = "", getTimeControlData = FALSE,
-  maxNestingCohortSize = 1e+07, maxCasesPerOutcome = 5e+05)
+createGetDbCaseCrossoverDataArgs(
+  useNestingCohort = FALSE,
+  useObservationEndAsNestingEndDate = TRUE,
+  getVisits = FALSE,
+  studyStartDate = "",
+  studyEndDate = "",
+  getTimeControlData = FALSE,
+  maxNestingCohortSize = 1e+07,
+  maxCasesPerOutcome = 5e+05
+)
 }
 \arguments{
 \item{useNestingCohort}{Should the study be nested in a cohort (e.g. people witha

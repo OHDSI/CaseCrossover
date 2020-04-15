@@ -4,9 +4,13 @@
 \alias{createSelectSubjectsToIncludeArgs}
 \title{Create a parameter object for the function selectSubjectsToInclude}
 \usage{
-createSelectSubjectsToIncludeArgs(firstOutcomeOnly = TRUE,
-  washoutPeriod = 180, matchingCriteria = NULL, minAge = NULL,
-  maxAge = NULL)
+createSelectSubjectsToIncludeArgs(
+  firstOutcomeOnly = TRUE,
+  washoutPeriod = 180,
+  matchingCriteria = NULL,
+  minAge = NULL,
+  maxAge = NULL
+)
 }
 \arguments{
 \item{firstOutcomeOnly}{Use the first outcome per person?}

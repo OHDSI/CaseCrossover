@@ -1,4 +1,4 @@
-# Copyright 2018 Observational Health Data Sciences and Informatics
+# Copyright 2020 Observational Health Data Sciences and Informatics
 #
 # This file is part of CaseCrossover
 #
@@ -18,27 +18,25 @@
 OhdsiRTools::formatRFolder()
 OhdsiRTools::checkUsagePackage("CaseCrossover")
 OhdsiRTools::updateCopyrightYearFolder()
+devtools::spell_check()
 
 # Create manual and vignette
-if (.Platform$OS.type == "unix") {
-  system("rm extras/CaseCrossover.pdf")
-  system("R CMD Rd2pdf ./ --output=extras/CaseCrossover.pdf")
-} else {
-  shell("rm extras/CaseCrossover.pdf")
-  shell("R CMD Rd2pdf ./ --output=extras/CaseCrossover.pdf")
-}
+unlink("extras/CaseCrossover.pdf")
+shell("R CMD Rd2pdf ./ --output=extras/CaseCrossover.pdf")
 
 rmarkdown::render("vignettes/SingleStudies.Rmd",
                   output_file = "../inst/doc/SingleStudies.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/SingleStudies.tex")
 
 rmarkdown::render("vignettes/MultipleAnalyses.Rmd",
                   output_file = "../inst/doc/MultipleAnalyses.pdf",
                   rmarkdown::pdf_document(latex_engine = "pdflatex",
                                           toc = TRUE,
                                           number_sections = TRUE))
+unlink("inst/doc/MultipleAnalyses.tex")
 
 pkgdown::build_site()
 

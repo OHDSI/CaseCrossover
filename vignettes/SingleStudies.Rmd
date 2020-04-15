@@ -263,7 +263,7 @@ exposureStatus <- getExposureStatus(subjects = subjects,
                                     controlWindowOffsets = c(-60))
 ```
 
-Here we specify we are intested in all exposures, not just the first one, and that we will use two windows per subject: a case window defined as the 30 days preceding (and including) the index date, and a control window which has the same length as the case window but is shifted 60 days backwards, so from 90 days to (and including) 60 days prior to the index date. Note that multiple control windows can be specified by specifying more control window offsets. 
+Here we specify we are interested in all exposures, not just the first one, and that we will use two windows per subject: a case window defined as the 30 days preceding (and including) the index date, and a control window which has the same length as the case window but is shifted 60 days backwards, so from 90 days to (and including) 60 days prior to the index date. Note that multiple control windows can be specified by specifying more control window offsets. 
 
 Exposure status is then determined based on whether an exposure overlaps with one of the windows. The resulting  `exposureStatus` object is a data frame with six columns:
 			  

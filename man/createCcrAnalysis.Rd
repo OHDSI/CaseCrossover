@@ -4,10 +4,16 @@
 \alias{createCcrAnalysis}
 \title{Create a case-crossover analysis specification}
 \usage{
-createCcrAnalysis(analysisId = 1, description = "",
-  exposureType = NULL, outcomeType = NULL, nestingCohortType = NULL,
-  getDbCaseCrossoverDataArgs, selectSubjectsToIncludeArgs,
-  getExposureStatusArgs)
+createCcrAnalysis(
+  analysisId = 1,
+  description = "",
+  exposureType = NULL,
+  outcomeType = NULL,
+  nestingCohortType = NULL,
+  getDbCaseCrossoverDataArgs,
+  selectSubjectsToIncludeArgs,
+  getExposureStatusArgs
+)
 }
 \arguments{
 \item{analysisId}{An integer that will be used later to refer to this specific set

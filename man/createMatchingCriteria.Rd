@@ -4,11 +4,18 @@
 \alias{createMatchingCriteria}
 \title{Create matching criteria}
 \usage{
-createMatchingCriteria(controlsPerCase = 1, matchOnAge = TRUE,
-  ageCaliper = 2, matchOnGender = TRUE, matchOnProvider = FALSE,
-  matchOnCareSite = FALSE, matchOnVisitDate = FALSE,
-  visitDateCaliper = 30, matchOnTimeInCohort = FALSE,
-  daysInCohortCaliper = 30)
+createMatchingCriteria(
+  controlsPerCase = 1,
+  matchOnAge = TRUE,
+  ageCaliper = 2,
+  matchOnGender = TRUE,
+  matchOnProvider = FALSE,
+  matchOnCareSite = FALSE,
+  matchOnVisitDate = FALSE,
+  visitDateCaliper = 30,
+  matchOnTimeInCohort = FALSE,
+  daysInCohortCaliper = 30
+)
 }
 \arguments{
 \item{controlsPerCase}{Maximum number of controls to select per case.}

@@ -4,18 +4,24 @@
 \alias{runCcrAnalyses}
 \title{Run a list of analyses}
 \usage{
-runCcrAnalyses(connectionDetails, cdmDatabaseSchema,
+runCcrAnalyses(
+  connectionDetails,
+  cdmDatabaseSchema,
   oracleTempSchema = cdmDatabaseSchema,
   exposureDatabaseSchema = cdmDatabaseSchema,
   exposureTable = "drug_era",
   outcomeDatabaseSchema = cdmDatabaseSchema,
   outcomeTable = "condition_era",
   nestingCohortDatabaseSchema = cdmDatabaseSchema,
-  nestingCohortTable = "condition_era", outputFolder = "./CcrOutput",
-  ccrAnalysisList, exposureOutcomeNestingCohortList,
+  nestingCohortTable = "condition_era",
+  outputFolder = "./CcrOutput",
+  ccrAnalysisList,
+  exposureOutcomeNestingCohortList,
   getDbCaseCrossoverDataThreads = 1,
-  selectSubjectsToIncludeThreads = 1, getExposureStatusThreads = 1,
-  fitCaseCrossoverModelThreads = 1)
+  selectSubjectsToIncludeThreads = 1,
+  getExposureStatusThreads = 1,
+  fitCaseCrossoverModelThreads = 1
+)
 }
 \arguments{
 \item{connectionDetails}{An R object of type \code{ConnectionDetails} created using
