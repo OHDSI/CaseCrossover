@@ -21,4 +21,5 @@
 #' @importFrom survival strata
 #' @importFrom rlang .data
 #' @import DatabaseConnector
+#' @import dplyr
 NULL

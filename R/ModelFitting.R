@@ -113,46 +113,21 @@ fitCaseCrossoverModel <- function(exposureStatus) {
                                 exposedControlsControlWindow = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow & exposureStatus$exposed))
   }
   outcomeModel$outcomeCounts <- outcomeCounts
-  class(outcomeModel) <- "outcomeModel"
+  class(outcomeModel) <- "ccrOutcomeModel"
   delta <- Sys.time() - start
   ParallelLogger::logInfo(paste("Fitting model took", signif(delta, 3), attr(delta, "units")))
   return(outcomeModel)
 }
 
 
-#' @export
-summary.outcomeModel <- function(object, ...) {
-  class(object) <- "summary.outcomeModel"
-  return(object)
-}
 
 #' @export
-print.summary.outcomeModel <- function(x, ...) {
-  print.outcomeModel(x)
-
-  writeLines("")
-  writeLines("Counts")
-  d <- x$outcomeCounts
-  colnames(d) <- c("Cases",
-                   "Controls",
-                   "Control win. (cases)",
-                   "Control win. (controls)",
-                   "Exposed case win. (cases)",
-                   "Exposed control win. (cases)",
-                   "Exposed case win. (controls)",
-                   "Exposed control win. (controls)")
-  rownames(d) <- "Count"
-
-  printCoefmat(d)
-}
-
-#' @export
-coef.outcomeModel <- function(object, ...) {
+coef.ccrOutcomeModel <- function(object, ...) {
   return(object$outcomeModelTreatmentEstimate$logRr)
 }
 
 #' @export
-confint.outcomeModel <- function(object, parm, level = 0.95, ...) {
+confint.ccrOutcomeModel <- function(object, parm, level = 0.95, ...) {
   missing(parm)  # suppresses R CMD check note
   if (level != 0.95)
     stop("Only supporting 95% confidence interval")
@@ -161,7 +136,7 @@ confint.outcomeModel <- function(object, parm, level = 0.95, ...) {
 }
 
 #' @export
-print.outcomeModel <- function(x, ...) {
+print.ccrOutcomeModel <- function(x, ...) {
   writeLines("Case-Crossover fitted model")
   writeLines(paste("Status:", x$outcomeModelStatus))
   writeLines("")

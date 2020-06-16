@@ -11,6 +11,7 @@ An R package for performing case-crossover and case-time-control analyses in an 
 \seealso{
 Useful links:
 \itemize{
+  \item \url{http://ohdsi.github.io/CaseCrossover}
   \item \url{https://github.com/OHDSI/CaseCrossover}
   \item Report bugs at \url{https://github.com/OHDSI/CaseCrossover/issues}
 }

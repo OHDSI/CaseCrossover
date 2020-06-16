@@ -118,11 +118,11 @@ This is parameterized SQL which can be used by the `SqlRender` package. We use p
 ```{r tidy=FALSE,eval=FALSE}
 library(SqlRender)
 sql <- readSql("vignette.sql")
-sql <- renderSql(sql,
-                 cdmDatabaseSchema = cdmDatabaseSchema, 
-                 cohortDatabaseSchema = cohortDatabaseSchema,
-                 cohortTable = cohortTable)$sql
-sql <- translateSql(sql, targetDialect = connectionDetails$dbms)$sql
+sql <- render(sql,
+              cdmDatabaseSchema = cdmDatabaseSchema, 
+              cohortDatabaseSchema = cohortDatabaseSchema,
+              cohortTable = cohortTable)
+sql <- translate(sql, targetDialect = connectionDetails$dbms)
 
 connection <- connect(connectionDetails)
 executeSql(connection, sql)
@@ -294,7 +294,7 @@ ccrAnalysisList2 <- list(ccrAnalysis1A, ccrAnalysis1B)
 
 In this example, the first analysis (analysisId = 1) will use cohort definition 1 as outcome, whilst the second analysis analysis (analysisId = 2) will use cohort definition 11 as outcome.
 
-The same mechanism can be used to specifiy types for the exposureId and nestingCohortId.
+The same mechanism can be used to specify types for the exposureId and nestingCohortId.
 
 # Executing multiple analyses
 
@@ -334,7 +334,7 @@ ccrModelFile <- result$modelFile[result$exposureId == 1124300 &
                                    result$outcomeId == 1 &
                                    result$analysisId == 1]
 ccModel <- readRDS(file.path(outputFolder, ccrModelFile))
-summary(ccrModel)
+ccrModel
 ```
 ```{r echo=FALSE,message=FALSE}
 if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
@@ -343,7 +343,7 @@ if (file.exists("s:/temp/vignetteCaseCrossover2/outcomeModelReference.rds")) {
                                      result$outcomeId == 1 &
                                      result$analysisId == 1]
   ccrModel <- readRDS(file.path(outputFolder, ccrModelFile))
-  summary(ccrModel)
+  ccrModel
 }
 ```
 

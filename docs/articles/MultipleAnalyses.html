@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CaseCrossover</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://ohdsi.github.io/MethodsLibrary">Methods Library</a>
+  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/CaseCrossover/">
@@ -91,7 +91,7 @@
       <h1 data-toc-skip>Running multiple analyses at once using the CaseCrossover package</h1>
                         <h4 class="author">Martijn J. Schuemie</h4>
             
-            <h4 class="date">2020-04-15</h4>
+            <h4 class="date">2020-06-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/CaseCrossover/blob/master/vignettes/MultipleAnalyses.Rmd"><code>vignettes/MultipleAnalyses.Rmd</code></a></small>
       <div class="hidden name"><code>MultipleAnalyses.Rmd</code></div>
@@ -183,11 +183,11 @@
 <p>This is parameterized SQL which can be used by the <code>SqlRender</code> package. We use parameterized SQL so we do not have to pre-specify the names of the CDM and result schemas. That way, if we want to run the SQL on a different schema, we only need to change the parameter values; we do not have to change the SQL code. By also making use of translation functionality in <code>SqlRender</code>, we can make sure the SQL code can be run in many different environments.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">SqlRender</span>)
 <span class="no">sql</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SqlRender/man/readSql.html">readSql</a></span>(<span class="st">"vignette.sql"</span>)
-<span class="no">sql</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SqlRender/man/renderSql.html">renderSql</a></span>(<span class="no">sql</span>,
-                 <span class="kw">cdmDatabaseSchema</span> <span class="kw">=</span> <span class="no">cdmDatabaseSchema</span>,
-                 <span class="kw">cohortDatabaseSchema</span> <span class="kw">=</span> <span class="no">cohortDatabaseSchema</span>,
-                 <span class="kw">cohortTable</span> <span class="kw">=</span> <span class="no">cohortTable</span>)$<span class="no">sql</span>
-<span class="no">sql</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SqlRender/man/translateSql.html">translateSql</a></span>(<span class="no">sql</span>, <span class="kw">targetDialect</span> <span class="kw">=</span> <span class="no">connectionDetails</span>$<span class="no">dbms</span>)$<span class="no">sql</span>
+<span class="no">sql</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SqlRender/man/render.html">render</a></span>(<span class="no">sql</span>,
+              <span class="kw">cdmDatabaseSchema</span> <span class="kw">=</span> <span class="no">cdmDatabaseSchema</span>,
+              <span class="kw">cohortDatabaseSchema</span> <span class="kw">=</span> <span class="no">cohortDatabaseSchema</span>,
+              <span class="kw">cohortTable</span> <span class="kw">=</span> <span class="no">cohortTable</span>)
+<span class="no">sql</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/SqlRender/man/translate.html">translate</a></span>(<span class="no">sql</span>, <span class="kw">targetDialect</span> <span class="kw">=</span> <span class="no">connectionDetails</span>$<span class="no">dbms</span>)
 
 <span class="no">connection</span> <span class="kw">&lt;-</span> <span class="fu">connect</span>(<span class="no">connectionDetails</span>)
 <span class="fu">executeSql</span>(<span class="no">connection</span>, <span class="no">sql</span>)</pre></body></html></div>
@@ -325,7 +325,7 @@
 
 <span class="no">ccrAnalysisList2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">ccrAnalysis1A</span>, <span class="no">ccrAnalysis1B</span>)</pre></body></html></div>
 <p>In this example, the first analysis (analysisId = 1) will use cohort definition 1 as outcome, whilst the second analysis analysis (analysisId = 2) will use cohort definition 11 as outcome.</p>
-<p>The same mechanism can be used to specifiy types for the exposureId and nestingCohortId.</p>
+<p>The same mechanism can be used to specify types for the exposureId and nestingCohortId.</p>
 </div>
 </div>
 <div id="executing-multiple-analyses" class="section level1">
@@ -363,52 +363,44 @@
                                    <span class="no">result</span>$<span class="no">outcomeId</span> <span class="kw">==</span> <span class="fl">1</span> <span class="kw">&amp;</span>
                                    <span class="no">result</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">1</span>]
 <span class="no">ccModel</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span>(<span class="no">outputFolder</span>, <span class="no">ccrModelFile</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">ccrModel</span>)</pre></body></html></div>
+<span class="no">ccrModel</span></pre></body></html></div>
 <pre><code>#&gt; Case-Crossover fitted model
 #&gt; Status: OK
 #&gt; 
-#&gt;           Estimate lower .95 upper .95    logRr seLogRr
-#&gt; treatment 1.049705  0.969490  1.136557 0.048509  0.0406
-#&gt; 
-#&gt; Counts
-#&gt;        Cases Controls Control win. (cases) Control win. (controls)
-#&gt; Count 455909        0               455909                       0
-#&gt;       Exposed case win. (cases) Exposed control win. (cases)
-#&gt; Count                      2910                         2851
-#&gt;       Exposed case win. (controls) Exposed control win. (controls)
-#&gt; Count                            0                               0</code></pre>
+#&gt;            Estimate lower .95 upper .95     logRr seLogRr
+#&gt; treatment  0.909548  0.743697  1.112385 -0.094808  0.1027</code></pre>
 <p>Note that some of the file names will appear several times in the table. For example, analyses 2-4 share the same ccrData object.</p>
 <p>We can create a summary of the results using <code><a href="../reference/summarizeCcrAnalyses.html">summarizeCcrAnalyses()</a></code>:</p>
 <div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">analysisSum</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/summarizeCcrAnalyses.html">summarizeCcrAnalyses</a></span>(<span class="no">result</span>, <span class="no">outputFolder</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">analysisSum</span>)</pre></body></html></div>
 <pre><code>#&gt;   analysisId exposureId nestingCohortId outcomeId        rr    ci95lb   ci95ub
-#&gt; 1          1    1124300               2         1 1.0497051 0.9694903 1.136557
-#&gt; 2          1     705178               2         1 0.7076930 0.4851091 1.032406
-#&gt; 3          1     705944               2         1 0.9364407 0.7794752 1.125015
-#&gt; 4          1     710650               2         1 0.6756773 0.4067868 1.122307
-#&gt; 5          1     714785               2         1 1.1434109 0.9674893 1.351321
-#&gt; 6          1     719174               2         1 1.0152964 0.8998162 1.145597
-#&gt;            p  cases controls casesControlWindows controlsControlWindows
-#&gt; 1 0.23168883 455909        0              455909                      0
-#&gt; 2 0.07274233 455909        0              455909                      0
-#&gt; 3 0.48296337 455909        0              455909                      0
-#&gt; 4 0.12995570 455909        0              455909                      0
-#&gt; 5 0.11589880 455909        0              455909                      0
-#&gt; 6 0.80536171 455909        0              455909                      0
+#&gt; 1          1    1124300               2         1 0.9095477 0.7436968 1.112385
+#&gt; 2          1     705178               2         1 0.9285714 0.4364784 1.975458
+#&gt; 3          1     705944               2         1 1.0285714 0.6459164 1.637920
+#&gt; 4          1     710650               2         1 0.3636365 0.1157905 1.141989
+#&gt; 5          1     714785               2         1 1.1315789 0.7314212 1.750661
+#&gt; 6          1     719174               2         1 1.1413043 0.8626712 1.509933
+#&gt;            p cases controls casesControlWindows controlsControlWindows
+#&gt; 1 0.35598908 81277        0               81277                      0
+#&gt; 2 0.84742415 81277        0               81277                      0
+#&gt; 3 0.90553344 81277        0               81277                      0
+#&gt; 4 0.08317284 81277        0               81277                      0
+#&gt; 5 0.57875650 81277        0               81277                      0
+#&gt; 6 0.35468623 81277        0               81277                      0
 #&gt;   exposedCasesCaseWindow exposedCasesControlWindow exposedControlsCaseWindow
-#&gt; 1                   2910                      2851                         0
-#&gt; 2                    389                       408                         0
-#&gt; 3                   1240                      1255                         0
-#&gt; 4                    137                       149                         0
-#&gt; 5                   2116                      2079                         0
-#&gt; 6                   3172                      3164                         0
-#&gt;   exposedControlsControlWindow       logRr    seLogRr
-#&gt; 1                            0  0.04850930 0.04055895
-#&gt; 2                            0 -0.34574489 0.19267522
-#&gt; 3                            0 -0.06566910 0.09360649
-#&gt; 4                            0 -0.39203974 0.25889573
-#&gt; 5                            0  0.13401577 0.08523966
-#&gt; 6                            0  0.01518056 0.06160588</code></pre>
+#&gt; 1                    419                       437                         0
+#&gt; 2                     98                        99                         0
+#&gt; 3                    204                       203                         0
+#&gt; 4                     18                        25                         0
+#&gt; 5                    304                       299                         0
+#&gt; 6                    637                       624                         0
+#&gt;   exposedControlsControlWindow       logRr   seLogRr
+#&gt; 1                            0 -0.09480779 0.1027131
+#&gt; 2                            0 -0.07410797 0.3851644
+#&gt; 3                            0  0.02817088 0.2373799
+#&gt; 4                            0 -1.01160049 0.5838742
+#&gt; 5                            0  0.12361396 0.2226468
+#&gt; 6                            0  0.13217177 0.1428054</code></pre>
 <p>This tells us, per exposure-outcome-nesting cohort-analysis combination, the estimated relative risk and 95% confidence interval, as well as the number of cases, controls (for time-case-control), and number of those that were exposed to the drug in the various windows.</p>
 <div id="empirical-calibration" class="section level2">
 <h2 class="hasAnchor">
@@ -425,8 +417,9 @@
                       <span class="kw">logRrPositives</span> <span class="kw">=</span> <span class="no">ei</span>$<span class="no">logRr</span>,
                       <span class="kw">seLogRrPositives</span> <span class="kw">=</span> <span class="no">ei</span>$<span class="no">seLogRr</span>,
                       <span class="no">null</span>)</pre></body></html></div>
+<pre><code>#&gt; Warning: Removed 2 rows containing missing values (geom_point).</code></pre>
 <p><img src="MultipleAnalyses_files/figure-html/unnamed-chunk-17-1.png" width="700"></p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="co"># Analysis 2: Nesting in rheumatoid arthritis</span>
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="co"># Analysis 2: Nesting in rheumatoid arthritis</span>
 <span class="no">negCons</span> <span class="kw">&lt;-</span> <span class="no">analysisSum</span>[<span class="no">analysisSum</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">2</span> <span class="kw">&amp;</span> <span class="no">analysisSum</span>$<span class="no">exposureId</span> <span class="kw">!=</span> <span class="fl">1124300</span>, ]
 <span class="no">ei</span> <span class="kw">&lt;-</span>  <span class="no">analysisSum</span>[<span class="no">analysisSum</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">2</span> <span class="kw">&amp;</span> <span class="no">analysisSum</span>$<span class="no">exposureId</span> <span class="kw">==</span> <span class="fl">1124300</span>, ]
 <span class="no">null</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/EmpiricalCalibration/man/fitNull.html">fitNull</a></span>(<span class="no">negCons</span>$<span class="no">logRr</span>, <span class="no">negCons</span>$<span class="no">seLogRr</span>)
@@ -439,7 +432,7 @@
 #&gt; error detected. Removing before fitting null distribution</code></pre>
 <pre><code>#&gt; Warning: Removed 10 rows containing missing values (geom_point).</code></pre>
 <p><img src="MultipleAnalyses_files/figure-html/unnamed-chunk-19-1.png" width="700"></p>
-<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="co"># Analysis 3: Nested case-time-control, matching on age and gender</span>
+<div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="co"># Analysis 3: Nested case-time-control, matching on age and gender</span>
 <span class="no">negCons</span> <span class="kw">&lt;-</span> <span class="no">analysisSum</span>[<span class="no">analysisSum</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">3</span> <span class="kw">&amp;</span> <span class="no">analysisSum</span>$<span class="no">exposureId</span> <span class="kw">!=</span> <span class="fl">1124300</span>, ]
 <span class="no">ei</span> <span class="kw">&lt;-</span>  <span class="no">analysisSum</span>[<span class="no">analysisSum</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">3</span> <span class="kw">&amp;</span> <span class="no">analysisSum</span>$<span class="no">exposureId</span> <span class="kw">==</span> <span class="fl">1124300</span>, ]
 <span class="no">null</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/EmpiricalCalibration/man/fitNull.html">fitNull</a></span>(<span class="no">negCons</span>$<span class="no">logRr</span>, <span class="no">negCons</span>$<span class="no">seLogRr</span>)
@@ -450,9 +443,9 @@
                       <span class="no">null</span>)</pre></body></html></div>
 <pre><code>#&gt; Warning in fitNull(negCons$logRr, negCons$seLogRr): Estimate(s) with NA standard
 #&gt; error detected. Removing before fitting null distribution</code></pre>
-<pre><code>#&gt; Warning: Removed 14 rows containing missing values (geom_point).</code></pre>
+<pre><code>#&gt; Warning: Removed 13 rows containing missing values (geom_point).</code></pre>
 <p><img src="MultipleAnalyses_files/figure-html/unnamed-chunk-21-1.png" width="700"></p>
-<div class="sourceCode" id="cb23"><html><body><pre class="r"><span class="co"># Analysis 4: Nested case-time-control, matching on age, gender, and visit</span>
+<div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="co"># Analysis 4: Nested case-time-control, matching on age, gender, and visit</span>
 <span class="no">negCons</span> <span class="kw">&lt;-</span> <span class="no">analysisSum</span>[<span class="no">analysisSum</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">4</span> <span class="kw">&amp;</span> <span class="no">analysisSum</span>$<span class="no">exposureId</span> <span class="kw">!=</span> <span class="fl">1124300</span>, ]
 <span class="no">ei</span> <span class="kw">&lt;-</span>  <span class="no">analysisSum</span>[<span class="no">analysisSum</span>$<span class="no">analysisId</span> <span class="kw">==</span> <span class="fl">4</span> <span class="kw">&amp;</span> <span class="no">analysisSum</span>$<span class="no">exposureId</span> <span class="kw">==</span> <span class="fl">1124300</span>, ]
 <span class="no">null</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/EmpiricalCalibration/man/fitNull.html">fitNull</a></span>(<span class="no">negCons</span>$<span class="no">logRr</span>, <span class="no">negCons</span>$<span class="no">seLogRr</span>)
@@ -463,15 +456,16 @@
                       <span class="no">null</span>)</pre></body></html></div>
 <pre><code>#&gt; Warning in fitNull(negCons$logRr, negCons$seLogRr): Estimate(s) with NA standard
 #&gt; error detected. Removing before fitting null distribution</code></pre>
-<pre><code>#&gt; Warning: Removed 9 rows containing missing values (geom_point).</code></pre>
+<pre><code>#&gt; Warning: Removed 10 rows containing missing values (geom_point).</code></pre>
 <p><img src="MultipleAnalyses_files/figure-html/unnamed-chunk-23-1.png" width="700"> ## Acknowledgments</p>
 <p>Considerable work has been dedicated to provide the <code>CaseCrossover</code> package.</p>
-<div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span>(<span class="st">"CaseCrossover"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb27"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span>(<span class="st">"CaseCrossover"</span>)</pre></body></html></div>
 <pre><code>#&gt; 
 #&gt; To cite package 'CaseCrossover' in publications use:
 #&gt; 
-#&gt;   Martijn Schuemie (2020). CaseCrossover: Case-Crossover. R package
-#&gt;   version 2.0.0. https://github.com/OHDSI/CaseCrossover
+#&gt;   Martijn Schuemie (2020). CaseCrossover: Case-Crossover.
+#&gt;   http://ohdsi.github.io/CaseCrossover,
+#&gt;   https://github.com/OHDSI/CaseCrossover.
 #&gt; 
 #&gt; A BibTeX entry for LaTeX users is
 #&gt; 
@@ -479,11 +473,10 @@
 #&gt;     title = {CaseCrossover: Case-Crossover},
 #&gt;     author = {Martijn Schuemie},
 #&gt;     year = {2020},
-#&gt;     note = {R package version 2.0.0},
-#&gt;     url = {https://github.com/OHDSI/CaseCrossover},
+#&gt;     note = {http://ohdsi.github.io/CaseCrossover, https://github.com/OHDSI/CaseCrossover},
 #&gt;   }</code></pre>
 <p>Further, <code>CaseCrossover</code> makes extensive use of the <code>Cyclops</code> package.</p>
-<div class="sourceCode" id="cb28"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span>(<span class="st">"Cyclops"</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb29"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span>(<span class="st">"Cyclops"</span>)</pre></body></html></div>
 <pre><code>#&gt; 
 #&gt; To cite Cyclops in publications use:
 #&gt; 
@@ -523,7 +516,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

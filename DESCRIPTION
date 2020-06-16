@@ -9,7 +9,7 @@ Authors@R: c(
 Maintainer: Martijn Schuemie <schuemie@ohdsi.org>
 Description: An R package for performing case-crossover and case-time-control analyses in an observational database in the OMOP Common Data Model.
 VignetteBuilder: knitr
-URL: https://github.com/OHDSI/CaseCrossover
+URL: http://ohdsi.github.io/CaseCrossover, https://github.com/OHDSI/CaseCrossover
 BugReports: https://github.com/OHDSI/CaseCrossover/issues
 Depends:
     R (>= 3.2.2),
@@ -18,13 +18,16 @@ Depends:
     Andromeda
 Imports:
     CaseControl (>= 3.0.0),
-    ParallelLogger (>= 2.0.0)
+    ParallelLogger (>= 2.0.0),
+    rlang,
+    dplyr,
+    cli,
+    pillar
 Suggests:
     testthat,
     knitr,
     rmarkdown,
-    EmpiricalCalibration,
-    rlang
+    EmpiricalCalibration
 Remotes:
     ohdsi/CaseControl
 License: Apache License 2.0

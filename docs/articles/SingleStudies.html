@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CaseCrossover</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://ohdsi.github.io/MethodsLibrary">Methods Library</a>
+  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/CaseCrossover/">
@@ -91,7 +91,7 @@
       <h1 data-toc-skip>Single studies using the CaseCrossover package</h1>
                         <h4 class="author">Martijn J. Schuemie</h4>
             
-            <h4 class="date">2020-04-15</h4>
+            <h4 class="date">2020-06-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OHDSI/CaseCrossover/blob/master/vignettes/SingleStudies.Rmd"><code>vignettes/SingleStudies.Rmd</code></a></small>
       <div class="hidden name"><code>SingleStudies.Rmd</code></div>
@@ -108,7 +108,7 @@
 <div id="installation-instructions" class="section level1">
 <h1 class="hasAnchor">
 <a href="#installation-instructions" class="anchor"></a>Installation instructions</h1>
-<p>Before installing the <code>CaseCrossover</code> package make sure you have Java available. Java can be downloaded from <a href="http://www.java.com">www.java.com</a>. For Windows users, RTools is also necessary. RTools can be downloaded from <a href="http://cran.r-project.org/bin/windows/Rtools/">CRAN</a>.</p>
+<p>Before installing the <code>CaseCrossover</code> package make sure you have Java available. Java can be downloaded from <a href="http://www.java.com">www.java.com</a>. For Windows users, RTools is also necessary. RTools can be downloaded from <a href="http://cran.r-project.org/bin/windows/Rtools/">CRAN</a>. See <a href="https://ohdsi.github.io/Hades/rSetup.html">these instructions</a> for properly configuring your R environment.</p>
 <p>The <code>CaseCrossover</code> package is currently maintained in a <a href="https://github.com/OHDSI/CaseCrossover">Github repository</a>, and has dependencies on other packages in Github. All of these packages can be downloaded and installed from within R using the <code>drat</code> package:</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"drat"</span>)
 <span class="kw pkg">drat</span><span class="kw ns">::</span><span class="fu">addRepo</span>(<span class="st">"OHDSI"</span>)
@@ -185,11 +185,11 @@
 <p>This is parameterized SQL which can be used by the <code>SqlRender</code> package. We use parameterized SQL so we do not have to pre-specify the names of the CDM and cohort schemas. That way, if we want to run the SQL on a different schema, we only need to change the parameter values; we do not have to change the SQL code. By also making use of translation functionality in <code>SqlRender</code>, we can make sure the SQL code can be run in many different environments.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r">library(SqlRender)
 sql &lt;- readSql("vignette.sql")
-sql &lt;- renderSql(sql,
-                 cdmDatabaseSchema = cdmDatabaseSchema, 
-                 cohortDatabaseSchema = cohortDatabaseSchema
-                 cohortTable = cohortTable)$sql
-sql &lt;- translateSql(sql, targetDialect = connectionDetails$dbms)$sql
+sql &lt;- render(sql,
+              cdmDatabaseSchema = cdmDatabaseSchema, 
+              cohortDatabaseSchema = cohortDatabaseSchema
+              cohortTable = cohortTable)
+sql &lt;- translate(sql, targetDialect = connectionDetails$dbms)
 
 connection &lt;- connect(connectionDetails)
 executeSql(connection, sql)</pre></body></html></div>
@@ -204,9 +204,9 @@ executeSql(connection, sql)</pre></body></html></div>
 <span class="no">sql</span> <span class="kw">&lt;-</span> <span class="fu">translateSql</span>(<span class="no">sql</span>, <span class="kw">targetDialect</span> <span class="kw">=</span> <span class="no">connectionDetails</span>$<span class="no">dbms</span>)$<span class="no">sql</span>
 
 <span class="fu">querySql</span>(<span class="no">connection</span>, <span class="no">sql</span>)</pre></body></html></div>
-<pre><code>#&gt;   cohort_definition_id  count
-#&gt; 1                    1 422274
-#&gt; 2                    2 118430</code></pre>
+<pre><code>##   cohort_definition_id  count
+## 1                    1 422274
+## 2                    2 118430</code></pre>
 </div>
 <div id="extracting-the-data-from-the-server" class="section level1">
 <h1 class="hasAnchor">
@@ -230,34 +230,39 @@ executeSql(connection, sql)</pre></body></html></div>
 
 
 <span class="no">caseCrossoverData</span></pre></body></html></div>
-<pre><code>#&gt; Case-crossover data object
-#&gt; 
-#&gt; Outcome concept ID(s): 1
-#&gt; Nesting cohort ID: 2
-#&gt; Exposure concept ID(s): 1124300</code></pre>
+<pre><code>## # CaseCrossoverData object
+## 
+## Outcome of interest ID(s): 1
+## 
+## Nesting cohort ID: 2
+## 
+## Inherits from Andromeda:
+## # Andromeda object
+## # Physical location:  C:\Users\mschuemi\AppData\Local\Temp\RtmpEzx4U5\file2f08432f2f05.sqlite
+## 
+## Tables:
+## $cases (nestingCohortId, outcomeId, indexDate)
+## $exposures (personId, exposureId, exposureStartDate, exposureEndDate)
+## $nestingCohorts (nestingCohortId, personId, observationPeriodStartDate, startDate, endDate, dateOfBirth, genderConceptId, providerId, careSiteId)</code></pre>
 <p>There are many parameters, but they are all documented in the <code>CaseCrossover</code> manual. In short, we are pointing the function to the table created earlier and indicating which concept ID in that table identifies the outcome. Note that it is possible to fetch the data for multiple outcomes at once for efficiency. We specify that we will use the <code>drug_era</code> table to identify exposures, and will only retrieve data on exposure to Diclofenac (concept ID 1124300). We furthermore specify a nesting cohort in the same table, meaning that people will be eligible to be cases if and when they fall inside the specified cohort. In this case, the nesting cohort starts when people have their first diagnosis of rheumatoid arthritis. We use the <code>useObservationEndAsNestingEndDate</code> argument to indicate people will stay eligible until the end of their observation period. We furthermore specify we want to retrieve data on time controls, which will be used later to adjust for time-trends in exposures, effectively turning the case-crossover study into a case-time-control study.</p>
-<p>Data about the cases (and potential time controls) are extracted from the server and stored in the <code>caseCrossoverData</code> object. This object uses the package <code>ff</code> to store information in a way that ensures R does not run out of memory, even when the data are large.</p>
+<p>Data about the cases (and potential time controls) are extracted from the server and stored in the <code>caseCrossoverData</code> object. This object uses the package <code>Andromeda</code> to store information in a way that ensures R does not run out of memory, even when the data are large.</p>
 <p>We can use the generic <code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> function to view some more information of the data we extracted:</p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">caseCrossoverData</span>)</pre></body></html></div>
-<pre><code>#&gt; Case-crossover data object summary
-#&gt; 
-#&gt; Outcome concept ID(s): 1
-#&gt; Nesting cohort ID: 2
-#&gt; 
-#&gt; Population count: 168765
-#&gt; Population window count: 168765
-#&gt; 
-#&gt; Outcome counts:
-#&gt;   Event count Case count
-#&gt; 1       20309      12821
-#&gt; 
-#&gt; Exposure counts:
-#&gt;         Exposure count Person count
-#&gt; 1124300          43721        21977</code></pre>
+<pre><code>## CaseCrossoverData object summary
+## 
+## Outcome concept ID(s): 1
+## Nesting cohort ID: 2
+## 
+## Population count: 285442
+## Population window count: 285442
+## 
+## Outcome counts:
+##   Event count Nesting cohort count Person count
+## 1       46427                26222        26222</code></pre>
 <div id="saving-the-data-to-file" class="section level2">
 <h2 class="hasAnchor">
 <a href="#saving-the-data-to-file" class="anchor"></a>Saving the data to file</h2>
-<p>Creating the <code>caseCrossoverData</code> object can take considerable computing time, and it is probably a good idea to save it for future sessions. Because <code>caseCrossoverData</code> uses <code>ff</code>, we cannot use R’s regular save function. Instead, we’ll have to use the <code><a href="../reference/saveCaseCrossoverData.html">saveCaseCrossoverData()</a></code> function:</p>
+<p>Creating the <code>caseCrossoverData</code> object can take considerable computing time, and it is probably a good idea to save it for future sessions. Because <code>caseCrossoverData</code> uses <code>Andromeda</code>, we cannot use R’s regular save function. Instead, we’ll have to use the <code><a href="../reference/saveCaseCrossoverData.html">saveCaseCrossoverData()</a></code> function:</p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="../reference/saveCaseCrossoverData.html">saveCaseCrossoverData</a></span>(<span class="no">caseCrossoverData</span>, <span class="st">"GiBleed"</span>)</pre></body></html></div>
 <p>We can use the <code><a href="../reference/loadCaseCrossoverData.html">loadCaseCrossoverData()</a></code> function to load the data in a future session.</p>
 </div>
@@ -273,19 +278,19 @@ executeSql(connection, sql)</pre></body></html></div>
 <p>In this example, we specify a washout period of 180 days, meaning that cases (and controls) are required to have a minimum of 180 days of observation prior to the index date. We also specify we will only consider the first outcome per person. If a person’s first outcome is within the washout period, that person will be removed from the analysis.</p>
 <p>The <code>subjects</code> object is a data frame with five columns:</p>
 <div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">subjects</span>)</pre></body></html></div>
-<pre><code>#&gt;   personId  indexDate isCase stratumId observationPeriodStartDate
-#&gt; 1        3 2009-10-10   TRUE         1                 2001-10-12
-#&gt; 2      123 2009-10-11   TRUE         2                 2002-01-11
-#&gt; 3      345 2009-10-09   TRUE         3                 2001-05-03
-#&gt; 4        6 2010-05-04   TRUE         4                 2003-02-01
-#&gt; 5      234 2010-05-04   TRUE         5                 2007-01-01
-#&gt; 6      567 2010-05-05   TRUE         6                 2006-03-01</code></pre>
+<pre><code>##   personId  indexDate isCase stratumId observationPeriodStartDate
+## 1        3 2009-10-10   TRUE         1                 2001-10-12
+## 2      123 2009-10-11   TRUE         2                 2002-01-11
+## 3      345 2009-10-09   TRUE         3                 2001-05-03
+## 4        6 2010-05-04   TRUE         4                 2003-02-01
+## 5      234 2010-05-04   TRUE         5                 2007-01-01
+## 6      567 2010-05-05   TRUE         6                 2006-03-01</code></pre>
 <p>We can show the attrition to see why cases and events were filtered:</p>
 <div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="fu"><a href="../reference/getAttritionTable.html">getAttritionTable</a></span>(<span class="no">subjects</span>)</pre></body></html></div>
-<pre><code>#&gt;                      description eventCount caseCount
-#&gt; 1                Original counts      20309     12821
-#&gt; 2               First event only      12821     12821
-#&gt; 3 Require 183 days of prior obs.       7555      7555</code></pre>
+<pre><code>##                      description eventCount caseCount
+## 1                Original counts      46427     26222
+## 2               First event only      26222     26222
+## 3 Require 183 days of prior obs.      17230     17230</code></pre>
 </div>
 <div id="determining-exposure-status" class="section level1">
 <h1 class="hasAnchor">
@@ -301,13 +306,13 @@ executeSql(connection, sql)</pre></body></html></div>
 <p>Here we specify we are interested in all exposures, not just the first one, and that we will use two windows per subject: a case window defined as the 30 days preceding (and including) the index date, and a control window which has the same length as the case window but is shifted 60 days backwards, so from 90 days to (and including) 60 days prior to the index date. Note that multiple control windows can be specified by specifying more control window offsets.</p>
 <p>Exposure status is then determined based on whether an exposure overlaps with one of the windows. The resulting <code>exposureStatus</code> object is a data frame with six columns:</p>
 <div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(<span class="no">exposureStatus</span>)</pre></body></html></div>
-<pre><code>#&gt;   personId  indexDate isCase stratumId isCaseWindow exposed
-#&gt; 1        3 2009-10-10   TRUE         1         TRUE       0
-#&gt; 2      123 2009-10-11   TRUE         2         TRUE       0
-#&gt; 3      345 2009-10-09   TRUE         3         TRUE       0
-#&gt; 4        6 2010-05-04   TRUE         4         TRUE       0
-#&gt; 5      234 2010-05-04   TRUE         5         TRUE       0
-#&gt; 6      567 2010-05-05   TRUE         6         TRUE       0</code></pre>
+<pre><code>##   personId  indexDate isCase stratumId isCaseWindow exposed
+## 1        3 2009-10-10   TRUE         1         TRUE       0
+## 2      123 2009-10-11   TRUE         2         TRUE       0
+## 3      345 2009-10-09   TRUE         3         TRUE       0
+## 4        6 2010-05-04   TRUE         4         TRUE       0
+## 5      234 2010-05-04   TRUE         5         TRUE       0
+## 6      567 2010-05-05   TRUE         6         TRUE       0</code></pre>
 </div>
 <div id="fitting-the-model" class="section level1">
 <h1 class="hasAnchor">
@@ -316,30 +321,22 @@ executeSql(connection, sql)</pre></body></html></div>
 <div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="no">fit</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitCaseCrossoverModel.html">fitCaseCrossoverModel</a></span>(<span class="no">exposureStatus</span>)
 
 <span class="no">fit</span></pre></body></html></div>
-<pre><code>#&gt; Case-Crossover fitted model
-#&gt; Status: OK
-#&gt; 
-#&gt;           Estimate lower .95 upper .95    logRr seLogRr
-#&gt; treatment 1.068966  0.747257  1.529176 0.066691  0.1827</code></pre>
-<p>The generic functions <code>summary</code>, <code>coef</code>, and <code>confint</code> are implemented for the <code>fit</code> object:</p>
-<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">fit</span>)</pre></body></html></div>
-<pre><code>#&gt; Case-Crossover fitted model
-#&gt; Status: OK
-#&gt; 
-#&gt;           Estimate lower .95 upper .95    logRr seLogRr
-#&gt; treatment 1.068966  0.747257  1.529176 0.066691  0.1827
-#&gt; 
-#&gt; Counts
-#&gt;       Cases Controls Control win. (cases) Control win. (controls)
-#&gt; Count  7555        0                 7555                       0
-#&gt;       Exposed case win. (cases) Exposed control win. (cases)
-#&gt; Count                       160                          156
-#&gt;       Exposed case win. (controls) Exposed control win. (controls)
-#&gt; Count                            0                               0</code></pre>
+<pre><code>## Case-Crossover fitted model
+## Status: OK
+## 
+##           Estimate lower .95 upper .95   logRr seLogRr
+## treatment  1.13889   0.93226   1.39132 0.13005  0.1021</code></pre>
+<p>The generic functions <code>print</code>, <code>coef</code>, and <code>confint</code> are implemented for the <code>fit</code> object:</p>
+<div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="no">fit</span></pre></body></html></div>
+<pre><code>## Case-Crossover fitted model
+## Status: OK
+## 
+##           Estimate lower .95 upper .95   logRr seLogRr
+## treatment  1.13889   0.93226   1.39132 0.13005  0.1021</code></pre>
 <div class="sourceCode" id="cb24"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span>(<span class="no">fit</span>)</pre></body></html></div>
-<pre><code>#&gt; [1] 0.06669137</code></pre>
+<pre><code>## [1] 0.1300531</code></pre>
 <div class="sourceCode" id="cb26"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span>(<span class="no">fit</span>)</pre></body></html></div>
-<pre><code>#&gt; [1] -0.2913464  0.4247292</code></pre>
+<pre><code>## [1] -0.07014743  0.33025368</code></pre>
 </div>
 <div id="case-time-control" class="section level1">
 <h1 class="hasAnchor">
@@ -366,62 +363,54 @@ executeSql(connection, sql)</pre></body></html></div>
 
 <span class="no">fitCtc</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/fitCaseCrossoverModel.html">fitCaseCrossoverModel</a></span>(<span class="no">exposureStatusCtc</span>)
 
-<span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">fitCtc</span>)</pre></body></html></div>
-<pre><code>#&gt; Case-Crossover fitted model
-#&gt; Status: OK
-#&gt; 
-#&gt;           Estimate lower .95 upper .95   logRr seLogRr
-#&gt; treatment  1.31394   0.77897   2.21630 0.27303  0.2667
-#&gt; 
-#&gt; Counts
-#&gt;       Cases Controls Control win. (cases) Control win. (controls)
-#&gt; Count  7555     7555                 7555                    7555
-#&gt;       Exposed case win. (cases) Exposed control win. (cases)
-#&gt; Count                       160                          156
-#&gt;       Exposed case win. (controls) Exposed control win. (controls)
-#&gt; Count                          136                             147</code></pre>
+<span class="no">fitCtc</span></pre></body></html></div>
+<pre><code>## Case-Crossover fitted model
+## Status: OK
+## 
+##           Estimate lower .95 upper .95   logRr seLogRr
+## treatment  1.12438   0.83389   1.51606 0.11723  0.1525</code></pre>
 </div>
 <div id="acknowledgments" class="section level1">
 <h1 class="hasAnchor">
 <a href="#acknowledgments" class="anchor"></a>Acknowledgments</h1>
 <p>Considerable work has been dedicated to provide the <code>CaseCrossover</code> package.</p>
 <div class="sourceCode" id="cb31"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span>(<span class="st">"CaseCrossover"</span>)</pre></body></html></div>
-<pre><code>#&gt; 
-#&gt; To cite package 'CaseCrossover' in publications use:
-#&gt; 
-#&gt;   Martijn Schuemie (2020). CaseCrossover: Case-Crossover. R package
-#&gt;   version 2.0.0. https://github.com/OHDSI/CaseCrossover
-#&gt; 
-#&gt; A BibTeX entry for LaTeX users is
-#&gt; 
-#&gt;   @Manual{,
-#&gt;     title = {CaseCrossover: Case-Crossover},
-#&gt;     author = {Martijn Schuemie},
-#&gt;     year = {2020},
-#&gt;     note = {R package version 2.0.0},
-#&gt;     url = {https://github.com/OHDSI/CaseCrossover},
-#&gt;   }</code></pre>
+<pre><code>## 
+## To cite package 'CaseCrossover' in publications use:
+## 
+##   Martijn Schuemie (2020). CaseCrossover: Case-Crossover.
+##   http://ohdsi.github.io/CaseCrossover,
+##   https://github.com/OHDSI/CaseCrossover.
+## 
+## A BibTeX entry for LaTeX users is
+## 
+##   @Manual{,
+##     title = {CaseCrossover: Case-Crossover},
+##     author = {Martijn Schuemie},
+##     year = {2020},
+##     note = {http://ohdsi.github.io/CaseCrossover, https://github.com/OHDSI/CaseCrossover},
+##   }</code></pre>
 <p>Furthermore, <code>CaseCrossover</code> makes extensive use of the <code>Cyclops</code> package.</p>
 <div class="sourceCode" id="cb33"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/citation.html">citation</a></span>(<span class="st">"Cyclops"</span>)</pre></body></html></div>
-<pre><code>#&gt; 
-#&gt; To cite Cyclops in publications use:
-#&gt; 
-#&gt; Suchard MA, Simpson SE, Zorych I, Ryan P, Madigan D (2013). "Massive
-#&gt; parallelization of serial inference algorithms for complex generalized
-#&gt; linear models." _ACM Transactions on Modeling and Computer Simulation_,
-#&gt; *23*, 10. &lt;URL: http://dl.acm.org/citation.cfm?id=2414791&gt;.
-#&gt; 
-#&gt; A BibTeX entry for LaTeX users is
-#&gt; 
-#&gt;   @Article{,
-#&gt;     author = {M. A. Suchard and S. E. Simpson and I. Zorych and P. Ryan and D. Madigan},
-#&gt;     title = {Massive parallelization of serial inference algorithms for complex generalized linear models},
-#&gt;     journal = {ACM Transactions on Modeling and Computer Simulation},
-#&gt;     volume = {23},
-#&gt;     pages = {10},
-#&gt;     year = {2013},
-#&gt;     url = {http://dl.acm.org/citation.cfm?id=2414791},
-#&gt;   }</code></pre>
+<pre><code>## 
+## To cite Cyclops in publications use:
+## 
+## Suchard MA, Simpson SE, Zorych I, Ryan P, Madigan D (2013). "Massive
+## parallelization of serial inference algorithms for complex generalized
+## linear models." _ACM Transactions on Modeling and Computer Simulation_,
+## *23*, 10. &lt;URL: http://dl.acm.org/citation.cfm?id=2414791&gt;.
+## 
+## A BibTeX entry for LaTeX users is
+## 
+##   @Article{,
+##     author = {M. A. Suchard and S. E. Simpson and I. Zorych and P. Ryan and D. Madigan},
+##     title = {Massive parallelization of serial inference algorithms for complex generalized linear models},
+##     journal = {ACM Transactions on Modeling and Computer Simulation},
+##     volume = {23},
+##     pages = {10},
+##     year = {2013},
+##     url = {http://dl.acm.org/citation.cfm?id=2414791},
+##   }</code></pre>
 </div>
   </div>
 
@@ -440,7 +429,7 @@ executeSql(connection, sql)</pre></body></html></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CaseCrossover</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">2.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">3.0.0</span>
       </span>
     </div>
 
@@ -108,7 +108,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://ohdsi.github.io/MethodsLibrary">Methods Library</a>
+  <a href="https://ohdsi.github.io/Hades"><img src='https://ohdsi.github.io/Hades/images/hadesMini.png' width=80 height=17 style='vertical-align: top;'></a>
 </li>
 <li>
   <a href="https://github.com/OHDSI/CaseCrossover/">
@@ -155,30 +155,29 @@
     </tr>
     <tr>
       <th>washoutPeriod</th>
-      <td><p>Minimum required numbers of days of observation for inclusion as
-eithercase or control.</p></td>
+      <td><p>Minimum required numbers of days of observation for inclusion as either
+case or control.</p></td>
     </tr>
     <tr>
       <th>matchingCriteria</th>
-      <td><p>If provided, a case-time-control analysis will be performed and
-controlswill be matched based on these criteria.</p></td>
+      <td><p>If provided, a case-time-control analysis will be performed and controls
+will be matched based on these criteria.</p></td>
     </tr>
     <tr>
       <th>minAge</th>
-      <td><p>Minimum age at which patient time will be included in the analysis.
-Notethat information prior to the min age is still used to determine
-exposurestatus after the minimum age (e.g. when a prescription was started
-justprior to reaching the minimum age). Also, outcomes occurring before
-theminimum age is reached will be considered as prior outcomes when
-usingfirst outcomes only. Age should be specified in years, but
-non-integervalues are allowed. If not specified, no age restriction will
-be applied.</p></td>
+      <td><p>Minimum age at which patient time will be included in the analysis. Note
+that information prior to the min age is still used to determine exposure
+status after the minimum age (e.g. when a prescription was started just
+prior to reaching the minimum age). Also, outcomes occurring before the
+minimum age is reached will be considered as prior outcomes when using
+first outcomes only. Age should be specified in years, but non-integer
+values are allowed. If not specified, no age restriction will be applied.</p></td>
     </tr>
     <tr>
       <th>maxAge</th>
-      <td><p>Maximum age at which patient time will be included in the analysis.
-Ageshould be specified in years, but non-integer values are allowed. If
-notspecified, no age restriction will be applied.</p></td>
+      <td><p>Maximum age at which patient time will be included in the analysis. Age
+should be specified in years, but non-integer values are allowed. If not
+specified, no age restriction will be applied.</p></td>
     </tr>
     </table>
 
@@ -201,7 +200,7 @@ notspecified, no age restriction will be applied.</p></td>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

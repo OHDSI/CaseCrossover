@@ -39,6 +39,7 @@ rmarkdown::render("vignettes/MultipleAnalyses.Rmd",
 unlink("inst/doc/MultipleAnalyses.tex")
 
 pkgdown::build_site()
+OhdsiRTools::fixHadesLogo()
 
 # Create arg functions:
 library(CaseCrossover)

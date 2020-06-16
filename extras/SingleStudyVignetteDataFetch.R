@@ -131,7 +131,7 @@ exposureStatusCtc <- getExposureStatus(subjects = subjectsCtc,
 
 fitCtc <- fitCaseCrossoverModel(exposureStatusCtc)
 
-summary(fitCtc)
+fitCtc
 saveRDS(fitCtc, "s:/temp/vignetteCaseCrossover/fitCtc.rds")
 
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Save the case data to file — saveCaseCrossoverData • CaseCrossover</title>
+<title>Check whether an object is a CaseCrossoverData object — isCaseCrossoverData • CaseCrossover</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Save the case data to file — saveCaseCrossoverData" />
-<meta property="og:description" content="saveCaseCrossoverData saves an object of type caseCrossoverData to file" />
+<meta property="og:title" content="Check whether an object is a CaseCrossoverData object — isCaseCrossoverData" />
+<meta property="og:description" content="Check whether an object is a CaseCrossoverData object" />
 
 
 
@@ -129,35 +129,29 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Save the case data to file</h1>
+    <h1>Check whether an object is a CaseCrossoverData object</h1>
     <small class="dont-index">Source: <a href='https://github.com/OHDSI/CaseCrossover/blob/master/R/CaseCrossoverData.R'><code>R/CaseCrossoverData.R</code></a></small>
-    <div class="hidden name"><code>saveCaseCrossoverData.Rd</code></div>
+    <div class="hidden name"><code>isCaseCrossoverData.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p><code>saveCaseCrossoverData</code> saves an object of type caseCrossoverData to file</p>
+    <p>Check whether an object is a CaseCrossoverData object</p>
     </div>
 
-    <pre class="usage"><span class='fu'>saveCaseCrossoverData</span>(<span class='no'>caseCrossoverData</span>, <span class='no'>file</span>)</pre>
+    <pre class="usage"><span class='fu'>isCaseCrossoverData</span>(<span class='no'>x</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>caseCrossoverData</th>
-      <td><p>An object of type <code>CaseCrossoverData</code> as generated using
-<code><a href='getDbCaseCrossoverData.html'>getDbCaseCrossoverData</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>file</th>
-      <td><p>The name of the file where the data will be written. If the file
-exists it will be overwritten.</p></td>
+      <th>x</th>
+      <td><p>The object to check.</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The data will be written to the file specified by the user.</p>
+    <p>A logical value.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
