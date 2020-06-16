@@ -110,7 +110,7 @@ fitCaseCrossoverModel <- function(exposureStatus) {
                                 exposedCasesCaseWindow = sum(exposureStatus$isCase & exposureStatus$isCaseWindow & exposureStatus$exposed),
                                 exposedCasesControlWindow = sum(exposureStatus$isCase & !exposureStatus$isCaseWindow & exposureStatus$exposed),
                                 exposedControlsCaseWindow = sum(!exposureStatus$isCase & exposureStatus$isCaseWindow & exposureStatus$exposed),
-                                exposedControlsControlWindow = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow & exposureStatus$expose))
+                                exposedControlsControlWindow = sum(!exposureStatus$isCase & !exposureStatus$isCaseWindow & exposureStatus$exposed))
   }
   outcomeModel$outcomeCounts <- outcomeCounts
   class(outcomeModel) <- "outcomeModel"

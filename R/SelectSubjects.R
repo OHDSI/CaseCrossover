@@ -61,8 +61,10 @@ selectSubjectsToInclude <- function(caseCrossoverData,
                                     maxAge = NULL) {
   if (!missing(matchingCriteria) && !is.null(matchingCriteria)) {
     # Case-time-control -------------------------------------------------------
-    if (nrow(caseCrossoverData$nestingCohorts) == length(unique(caseCrossoverData$cases$nestingCohortId)))
-      if (!(nrow(caseCrossoverData$cases) == 1 && is.na(ff::as.ram(caseCrossoverData$cases$nestingCohortId))))
+    cases <- caseCrossoverData$cases %>%
+      collect()
+
+    if (caseCrossoverData$nestingCohorts %>% count() %>% pull() == length(unique(cases$nestingCohortId)))
         stop("Case-time-control analysis specified, but data does not contain time control data. Please set getTimeControlData to TRUE when loading the data.")
     matchingCriteria <- CaseControl::createMatchingCriteria(controlsPerCase = matchingCriteria$controlsPerCase,
                                                             matchOnAge = matchingCriteria$matchOnAge,
@@ -97,22 +99,16 @@ selectSubjectsToInclude <- function(caseCrossoverData,
   metaData <- attr(caseControls, "metaData")
 
   # Need to join to nestingCohorts to get observation period start date back:
-  if (nrow(caseControls) == 0) {
-    result <- caseControls
-    result$observationPeriodStartDate <- c()
-  } else {
-    subset <- caseCrossoverData$nestingCohorts[ffbase::`%in%`(caseCrossoverData$nestingCohorts$personId,
-                                                              unique(caseControls$personId)), c("personId",
-                                                                                                "observationPeriodStartDate",
-                                                                                                "startDate",
-                                                                                                "endDate")]
-    result <- merge(caseControls, subset)
-    result <- result[result$indexDate >= result$startDate & result$indexDate <= result$endDate, ]
-    result$startDate <- NULL
-    result$endDate <- NULL
-  }
-  attr(result, "metaData") <- metaData
-  return(result)
+  caseControls <- caseCrossoverData$nestingCohorts %>%
+    filter(.data$personId %in% local(caseControls$personId)) %>%
+    select(.data$personId, .data$observationPeriodStartDate, .data$startDate, .data$endDate) %>%
+    collect() %>%
+    inner_join(caseControls, by = "personId") %>%
+    filter(.data$indexDate >= .data$startDate & .data$indexDate <= .data$endDate) %>%
+    select(-.data$startDate, -.data$endDate)
+
+  attr(caseControls, "metaData") <- metaData
+  return(caseControls)
 }
 
 

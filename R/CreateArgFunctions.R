@@ -5,26 +5,26 @@
 #' @details
 #' Create an object defining the parameter values.
 #'
-#' @param useNestingCohort                    Should the study be nested in a cohort (e.g. people witha
-#'                                            specific indication)? If not, the study will be nestedin
-#'                                            the general population.
-#' @param useObservationEndAsNestingEndDate   When using a nesting cohort, should the observationperiod
-#'                                            end date be used instead of the cohort end date?
-#' @param getVisits                           Get data on visits? This is needed when performing atime-
-#'                                            case-control study and matching on visit date isrequested
-#'                                            later on.
-#' @param studyStartDate                      A calendar date specifying the minimum date where data
-#'                                            isused. Date format is 'yyyymmdd'.
-#' @param studyEndDate                        A calendar date specifying the maximum date where data
-#'                                            isused. Date format is 'yyyymmdd'.
-#' @param getTimeControlData                  Should data for time controls be fetched? (needed
-#'                                            forcase-time-control analyses).
-#' @param maxNestingCohortSize                If the nesting cohort is larger thanthis number it will
-#'                                            be sampled to this size. maxCohortSize = 0indicates no
+#' @param useNestingCohort                    Should the study be nested in a cohort (e.g. people with
+#'                                            a specific indication)? If not, the study will be nested
+#'                                            in the general population.
+#' @param useObservationEndAsNestingEndDate   When using a nesting cohort, should the observation
+#'                                            period end date be used instead of the cohort end date?
+#' @param getVisits                           Get data on visits? This is needed when performing a
+#'                                            time- case-control study and matching on visit date is
+#'                                            requested later on.
+#' @param studyStartDate                      A calendar date specifying the minimum date where data is
+#'                                            used. Date format is 'yyyymmdd'.
+#' @param studyEndDate                        A calendar date specifying the maximum date where data is
+#'                                            used. Date format is 'yyyymmdd'.
+#' @param getTimeControlData                  Should data for time controls be fetched? (needed for
+#'                                            case-time-control analyses).
+#' @param maxNestingCohortSize                If the nesting cohort is larger than this number it will
+#'                                            be sampled to this size. maxCohortSize = 0 indicates no
 #'                                            maximum size. (needed for case-time-control analyses).
-#' @param maxCasesPerOutcome                  If there are more than this number of cases for a
-#'                                            singleoutcome cases will be sampled to this size.
-#'                                            maxCasesPerOutcome = 0indicates no maximum size.
+#' @param maxCasesPerOutcome                  If there are more than this number of cases for a single
+#'                                            outcome cases will be sampled to this size.
+#'                                            maxCasesPerOutcome = 0 indicates no maximum size.
 #'
 #' @export
 createGetDbCaseCrossoverDataArgs <- function(useNestingCohort = FALSE,
@@ -35,16 +35,9 @@ createGetDbCaseCrossoverDataArgs <- function(useNestingCohort = FALSE,
                                              getTimeControlData = FALSE,
                                              maxNestingCohortSize = 1e+07,
                                              maxCasesPerOutcome = 5e+05) {
-  # First: get default values:
   analysis <- list()
   for (name in names(formals(createGetDbCaseCrossoverDataArgs))) {
     analysis[[name]] <- get(name)
-  }
-  # Second: overwrite defaults with actual values:
-  values <- lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3)))
-  for (name in names(values)) {
-    if (name %in% names(analysis))
-      analysis[[name]] <- values[[name]]
   }
   class(analysis) <- "args"
   return(analysis)
@@ -56,21 +49,20 @@ createGetDbCaseCrossoverDataArgs <- function(useNestingCohort = FALSE,
 #' Create an object defining the parameter values.
 #'
 #' @param firstOutcomeOnly   Use the first outcome per person?
-#' @param washoutPeriod      Minimum required numbers of days of observation for inclusion as
-#'                           eithercase or control.
-#' @param matchingCriteria   If provided, a case-time-control analysis will be performed and
-#'                           controlswill be matched based on these criteria.
-#' @param minAge             Minimum age at which patient time will be included in the analysis.
-#'                           Notethat information prior to the min age is still used to determine
-#'                           exposurestatus after the minimum age (e.g. when a prescription was started
-#'                           justprior to reaching the minimum age). Also, outcomes occurring before
-#'                           theminimum age is reached will be considered as prior outcomes when
-#'                           usingfirst outcomes only. Age should be specified in years, but
-#'                           non-integervalues are allowed. If not specified, no age restriction will
-#'                           be applied.
-#' @param maxAge             Maximum age at which patient time will be included in the analysis.
-#'                           Ageshould be specified in years, but non-integer values are allowed. If
-#'                           notspecified, no age restriction will be applied.
+#' @param washoutPeriod      Minimum required numbers of days of observation for inclusion as either
+#'                           case or control.
+#' @param matchingCriteria   If provided, a case-time-control analysis will be performed and controls
+#'                           will be matched based on these criteria.
+#' @param minAge             Minimum age at which patient time will be included in the analysis. Note
+#'                           that information prior to the min age is still used to determine exposure
+#'                           status after the minimum age (e.g. when a prescription was started just
+#'                           prior to reaching the minimum age). Also, outcomes occurring before the
+#'                           minimum age is reached will be considered as prior outcomes when using
+#'                           first outcomes only. Age should be specified in years, but non-integer
+#'                           values are allowed. If not specified, no age restriction will be applied.
+#' @param maxAge             Maximum age at which patient time will be included in the analysis. Age
+#'                           should be specified in years, but non-integer values are allowed. If not
+#'                           specified, no age restriction will be applied.
 #'
 #' @export
 createSelectSubjectsToIncludeArgs <- function(firstOutcomeOnly = TRUE,
@@ -78,16 +70,9 @@ createSelectSubjectsToIncludeArgs <- function(firstOutcomeOnly = TRUE,
                                               matchingCriteria = NULL,
                                               minAge = NULL,
                                               maxAge = NULL) {
-  # First: get default values:
   analysis <- list()
   for (name in names(formals(createSelectSubjectsToIncludeArgs))) {
     analysis[[name]] <- get(name)
-  }
-  # Second: overwrite defaults with actual values:
-  values <- lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3)))
-  for (name in names(values)) {
-    if (name %in% names(analysis))
-      analysis[[name]] <- values[[name]]
   }
   class(analysis) <- "args"
   return(analysis)
@@ -99,10 +84,10 @@ createSelectSubjectsToIncludeArgs <- function(firstOutcomeOnly = TRUE,
 #' Create an object defining the parameter values.
 #'
 #' @param firstExposureOnly      Should only the first exposure per subject be included?
-#' @param riskWindowStart        The start of the risk window (in days) relative to the index date.This
+#' @param riskWindowStart        The start of the risk window (in days) relative to the index date.
+#'                               This number should be non-positive.
+#' @param riskWindowEnd          The end of the risk window (in days) relative to the index date. This
 #'                               number should be non-positive.
-#' @param riskWindowEnd          The end of the risk window (in days) relative to the index date.
-#'                               Thisnumber should be non-positive.
 #' @param controlWindowOffsets   Offsets in days of the control windows relative to the case window.
 #'
 #' @export
@@ -110,16 +95,9 @@ createGetExposureStatusArgs <- function(firstExposureOnly = FALSE,
                                         riskWindowStart = -30,
                                         riskWindowEnd = 0,
                                         controlWindowOffsets = c(-60)) {
-  # First: get default values:
   analysis <- list()
   for (name in names(formals(createGetExposureStatusArgs))) {
     analysis[[name]] <- get(name)
-  }
-  # Second: overwrite defaults with actual values:
-  values <- lapply(as.list(match.call())[-1], function(x) eval(x, envir = sys.frame(-3)))
-  for (name in names(values)) {
-    if (name %in% names(analysis))
-      analysis[[name]] <- values[[name]]
   }
   class(analysis) <- "args"
   return(analysis)

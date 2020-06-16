@@ -16,12 +16,12 @@
 
 # This code should be used to fetch the data that is used in the vignettes.
 library(CaseCrossover)
-options(fftempdir = "s:/fftemp")
+options(andromedaTempFolder = "s:/andromedaTemp")
 
 pw <- NULL
 dbms <- "pdw"
 user <- NULL
-cdmDatabaseSchema <- "cdm_truven_mdcd_v521.dbo"
+cdmDatabaseSchema <- "CDM_IBM_MDCR_V1192.dbo"
 cohortDatabaseSchema <- "scratch.dbo"
 oracleTempSchema <- NULL
 cohortTable <- "mschuemi_cc_vignette"
@@ -47,10 +47,10 @@ DatabaseConnector::executeSql(connection, sql)
 
 # Check number of subjects per cohort:
 sql <- "SELECT cohort_definition_id, COUNT(*) AS count FROM @cohortDatabaseSchema.@cohortTable GROUP BY cohort_definition_id"
-sql <- SqlRender::renderSql(sql,
-                            cohortDatabaseSchema = cohortDatabaseSchema,
-                            cohortTable = cohortTable)$sql
-sql <- SqlRender::translateSql(sql, targetDialect = connectionDetails$dbms)$sql
+sql <- SqlRender::render(sql,
+                         cohortDatabaseSchema = cohortDatabaseSchema,
+                         cohortTable = cohortTable)
+sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
 DatabaseConnector::querySql(connection, sql)
 
 DatabaseConnector::disconnect(connection)
@@ -61,7 +61,7 @@ caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetail
                                             oracleTempSchema = oracleTempSchema,
                                             outcomeDatabaseSchema = cohortDatabaseSchema,
                                             outcomeTable = cohortTable,
-                                            outcomeId = 1,
+                                            outcomeIds = 1,
                                             exposureDatabaseSchema = cdmDatabaseSchema,
                                             exposureTable = "drug_era",
                                             exposureIds = 1124300,
@@ -77,7 +77,7 @@ if (!file.exists("s:/temp/vignetteCaseCrossover"))
 
 saveCaseCrossoverData(caseCrossoverData, "s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
-# caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
+caseCrossoverData <- loadCaseCrossoverData("s:/temp/vignetteCaseCrossover/caseCrossoverData")
 
 caseCrossoverData
 
@@ -90,7 +90,7 @@ subjects <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
                                     firstOutcomeOnly = TRUE,
                                     washoutPeriod = 183)
 
-head(subjects)
+subjects
 saveRDS(subjects, "s:/temp/vignetteCaseCrossover/subjects.rds")
 
 exposureStatus <- getExposureStatus(subjects = subjects,
@@ -100,7 +100,7 @@ exposureStatus <- getExposureStatus(subjects = subjects,
                                     riskWindowStart = -30,
                                     riskWindowEnd = 0,
                                     controlWindowOffsets = c(-60))
-head(exposureStatus)
+exposureStatus
 
 saveRDS(exposureStatus, "s:/temp/vignetteCaseCrossover/exposureStatus.rds")
 # exposureStatus <- readRDS("s:/temp/vignetteCaseCrossover/exposureStatus.rds")

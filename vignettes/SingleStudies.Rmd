@@ -15,13 +15,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}      
 ---
 
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
+```{r echo = FALSE, message = FALSE, warning = FALSE}
 library(CaseCrossover)
-knitr::opts_chunk$set(
-  cache=FALSE,
-  comment = "#>",
-  error = FALSE,
-  tidy = FALSE)
 ```
 # Introduction
 
@@ -29,11 +24,11 @@ This vignette describes how you can use the `CaseCrossover` package to perform a
 
 # Installation instructions
 
-Before installing the `CaseCrossover` package make sure you have Java available.  Java can be downloaded from [www.java.com](http://www.java.com). For Windows users, RTools is also necessary.  RTools can be downloaded from [CRAN](http://cran.r-project.org/bin/windows/Rtools/).
+Before installing the `CaseCrossover` package make sure you have Java available.  Java can be downloaded from [www.java.com](http://www.java.com). For Windows users, RTools is also necessary.  RTools can be downloaded from [CRAN](http://cran.r-project.org/bin/windows/Rtools/). See [these instructions](https://ohdsi.github.io/Hades/rSetup.html) for properly configuring your R environment.
 
 The `CaseCrossover` package is currently maintained in a [Github repository](https://github.com/OHDSI/CaseCrossover), and has dependencies on other packages in Github. All of these packages can be downloaded and installed from within R using the `drat` package:
 
-```{r tidy=TRUE,eval=FALSE}
+```{r eval=FALSE}
 install.packages("drat")
 drat::addRepo("OHDSI")
 install.packages("CaseCrossover")
@@ -56,7 +51,7 @@ In the following sections these steps will be demonstrated.
 
 We need to tell R how to connect to the server where the data are. `CaseCrossover` uses the `DatabaseConnector` package, which provides the `createConnectionDetails` function. Type `?createConnectionDetails` for the specific settings required for the various database management systems (DBMS). For example, one might connect to a PostgreSQL database using this code:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 connectionDetails <- createConnectionDetails(dbms = "postgresql", 
                                              server = "localhost/ohdsi", 
                                              user = "joe", 
@@ -115,7 +110,7 @@ GROUP BY person_id;
 ```
 This is parameterized SQL which can be used by the `SqlRender` package. We use parameterized SQL so we do not have to pre-specify the names of the CDM and cohort schemas. That way, if we want to run the SQL on a different schema, we only need to change the parameter values; we do not have to change the SQL code. By also making use of translation functionality in `SqlRender`, we can make sure the SQL code can be run in many different environments.
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 library(SqlRender)
 sql <- readSql("vignette.sql")
 sql <- renderSql(sql,
@@ -132,7 +127,7 @@ In this code, we first read the SQL from the file into memory. In the next line,
 
 If all went well, we now have a table with the outcome of interest and the nesting cohort. We can see how many events:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 sql <- paste("SELECT cohort_definition_id, COUNT(*) AS count",
              "FROM @cohortDatabaseSchema.@cohortTable",
              "GROUP BY cohort_definition_id")
@@ -151,7 +146,7 @@ data.frame(cohort_definition_id = c(1,2),count=c(422274, 118430))
 
 Now we can tell `CaseCrossover` to extract the necessary data on the cases:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 caseCrossoverData <- getDbCaseCrossoverData(connectionDetails = connectionDetails,
                                             cdmDatabaseSchema = cdmDatabaseSchema,
                                             oracleTempSchema = oracleTempSchema,
@@ -184,11 +179,11 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 
 There are many parameters, but they are all documented in the `CaseCrossover` manual. In short, we are pointing the function to the table created earlier and indicating which concept ID in that table identifies the outcome. Note that it is possible to fetch the data for multiple outcomes at once for efficiency. We specify that we will use the `drug_era` table to identify exposures, and will only retrieve data on exposure to Diclofenac (concept ID 1124300). We furthermore specify a nesting cohort in the same table, meaning that people will be eligible to be cases if and when they fall inside the specified cohort. In this case, the nesting cohort starts when people have their first diagnosis of rheumatoid arthritis. We use the `useObservationEndAsNestingEndDate` argument to indicate people will stay eligible until the end of their observation period. We furthermore specify we want to retrieve data on time controls, which will be used later to adjust for time-trends in exposures, effectively turning the case-crossover study into a case-time-control study.
 
-Data about the cases (and potential time controls) are extracted from the server and stored in the `caseCrossoverData` object. This object uses the package `ff` to store information in a way that ensures R does not run out of memory, even when the data are large. 
+Data about the cases (and potential time controls) are extracted from the server and stored in the `caseCrossoverData` object. This object uses the package `Andromeda` to store information in a way that ensures R does not run out of memory, even when the data are large. 
 
 We can use the generic `summary()` function to view some more information of the data we extracted:
 
-```{r tidy=TRUE,eval=FALSE}
+```{r eval=FALSE}
 summary(caseCrossoverData)
 ```
 ```{r echo=FALSE,message=FALSE}
@@ -199,9 +194,9 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 
 ## Saving the data to file
 
-Creating the `caseCrossoverData` object can take considerable computing time, and it is probably a good idea to save it for future sessions. Because `caseCrossoverData` uses `ff`, we cannot use R's regular save function. Instead, we'll have to use the `saveCaseCrossoverData()` function:
+Creating the `caseCrossoverData` object can take considerable computing time, and it is probably a good idea to save it for future sessions. Because `caseCrossoverData` uses `Andromeda`, we cannot use R's regular save function. Instead, we'll have to use the `saveCaseCrossoverData()` function:
 
-```{r tidy=TRUE,eval=FALSE}
+```{r eval=FALSE}
 saveCaseCrossoverData(caseCrossoverData, "GiBleed")
 ```
 
@@ -211,7 +206,7 @@ We can use the `loadCaseCrossoverData()` function to load the data in a future s
 
 Next, we can use the data to select matched controls per case:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 subjects <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
                                     outcomeId = 1,
                                     firstOutcomeOnly = TRUE,
@@ -235,7 +230,7 @@ data.frame(personId = c(3,123,345,6,234,567),
 
 We can show the attrition to see why cases and events were filtered:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 getAttritionTable(subjects)
 ```
 ```{r echo=FALSE,message=FALSE,eval=TRUE}
@@ -253,7 +248,7 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 
 We can now evaluate the exposure status of the cases in various time windows relative to the index date:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 exposureStatus <- getExposureStatus(subjects = subjects,
                                     caseCrossoverData = caseCrossoverData,
                                     exposureId = 1124300,
@@ -283,7 +278,7 @@ data.frame(personId = c(3,123,345,6,234,567),
 
 We can now fit the model, which is a logistic regression conditioned on the matched sets:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 fit <- fitCaseCrossoverModel(exposureStatus)
 
 fit
@@ -295,19 +290,19 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 }
 ```
 
-The generic functions `summary`, `coef`, and `confint` are implemented for the `fit` object:
+The generic functions `print`, `coef`, and `confint` are implemented for the `fit` object:
 
-```{r tidy=FALSE,eval=FALSE}
-summary(fit)
+```{r ,eval=FALSE}
+fit
 ```
 ```{r echo=FALSE,message=FALSE}
 if (file.exists("s:/temp/vignetteCaseCrossover")){
   fit <- readRDS("s:/temp/vignetteCaseCrossover/fit.rds")
-  summary(fit)
+  fit
 }
 ```
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 coef(fit)
 ```
 ```{r echo=FALSE,message=FALSE}
@@ -316,7 +311,7 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 }
 ```
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 confint(fit)
 ```
 ```{r echo=FALSE,message=FALSE}
@@ -329,7 +324,7 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 
 A variant of the case-crossover design is the case-time-control design. This design adjusts for time-trends in exposure by using a set of control subjects. To use this design in the `CaseCrossover` package, one needs to simply provide matching criteria to the `selectSubjectsToInclude` function:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 matchingCriteria <- createMatchingCriteria(controlsPerCase = 1,
                                            matchOnAge = TRUE,
                                            ageCaliper = 2,
@@ -344,7 +339,7 @@ subjectsCtc <- selectSubjectsToInclude(caseCrossoverData = caseCrossoverData,
 
 The other steps remain the same:
 
-```{r tidy=FALSE,eval=FALSE}
+```{r ,eval=FALSE}
 exposureStatusCtc <- getExposureStatus(subjects = subjectsCtc,
                                        caseCrossoverData = caseCrossoverData,
                                        exposureId = 1124300,
@@ -355,12 +350,12 @@ exposureStatusCtc <- getExposureStatus(subjects = subjectsCtc,
 
 fitCtc <- fitCaseCrossoverModel(exposureStatusCtc)
 
-summary(fitCtc)
+fitCtc
 ```
 ```{r echo=FALSE,message=FALSE}
 if (file.exists("s:/temp/vignetteCaseCrossover")){
   fitCtc <- readRDS("s:/temp/vignetteCaseCrossover/fitCtc.rds")
-  summary(fitCtc)
+  fitCtc
 }
 ```
 
@@ -368,12 +363,12 @@ if (file.exists("s:/temp/vignetteCaseCrossover")){
 
 Considerable work has been dedicated to provide the `CaseCrossover` package.
 
-```{r tidy=TRUE,eval=TRUE}
+```{r eval=TRUE}
 citation("CaseCrossover")
 ```
 
 Furthermore, `CaseCrossover` makes extensive use of the `Cyclops` package.
 
-```{r tidy=TRUE,eval=TRUE}
+```{r eval=TRUE}
 citation("Cyclops")
 ```

@@ -316,7 +316,7 @@ createCaseCrossoverDataObject <- function(params) {
 }
 
 createSubjectsObject <- function(params) {
-  caseCrossoverData <- loadCaseCrossoverData(params$cdDataFileName, readOnly = TRUE)
+  caseCrossoverData <- loadCaseCrossoverData(params$cdDataFileName)
   params$args$caseCrossoverData <- caseCrossoverData
   subjects <- do.call("selectSubjectsToInclude", params$args)
   saveRDS(subjects, params$subsFilename)

@@ -20,7 +20,7 @@
 library(SqlRender)
 library(DatabaseConnector)
 library(CaseCrossover)
-options(fftempdir = "s:/fftemp")
+options(andromedaTempFolder = "s:/andromedaTemp")
 
 pw <- NULL
 dbms <- "pdw"
@@ -52,10 +52,10 @@ DatabaseConnector::executeSql(connection, sql)
 
 # Check number of subjects per cohort:
 sql <- "SELECT cohort_definition_id, COUNT(*) AS count FROM @cohortDatabaseSchema.@cohortTable GROUP BY cohort_definition_id"
-sql <- SqlRender::renderSql(sql,
-                            cohortDatabaseSchema = cohortDatabaseSchema,
-                            cohortTable = cohortTable)$sql
-sql <- SqlRender::translateSql(sql, targetDialect = connectionDetails$dbms)$sql
+sql <- SqlRender::render(sql,
+                         cohortDatabaseSchema = cohortDatabaseSchema,
+                         cohortTable = cohortTable)
+sql <- SqlRender::translate(sql, targetDialect = connectionDetails$dbms)
 DatabaseConnector::querySql(connection, sql)
 DatabaseConnector::disconnect(connection)
 
@@ -105,34 +105,34 @@ getExposureStatusArgs1 <- createGetExposureStatusArgs(firstExposureOnly = FALSE,
                                                       controlWindowOffsets = -30)
 
 ccrAnalysis1 <- createCcrAnalysis(analysisId = 1,
-                                 description = "Simple case-crossover",
-                                 getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs1,
-                                 selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
-                                 getExposureStatusArgs = getExposureStatusArgs1)
+                                  description = "Simple case-crossover",
+                                  getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs1,
+                                  selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                  getExposureStatusArgs = getExposureStatusArgs1)
 
 getDbCaseCrossoverDataArgs2 <- createGetDbCaseCrossoverDataArgs(useNestingCohort = TRUE,
-                                                       getTimeControlData = TRUE,
-                                                       getVisits = TRUE)
+                                                                getTimeControlData = TRUE,
+                                                                getVisits = TRUE)
 
 ccrAnalysis2 <- createCcrAnalysis(analysisId = 2,
-                                description = "Nested case-crossover",
-                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
-                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
-                                getExposureStatusArgs = getExposureStatusArgs1)
+                                  description = "Nested case-crossover",
+                                  getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                  selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs1,
+                                  getExposureStatusArgs = getExposureStatusArgs1)
 
 matchingCriteria1 <- createMatchingCriteria(matchOnAge = TRUE,
-                                           ageCaliper = 2,
-                                           matchOnGender = TRUE)
+                                            ageCaliper = 2,
+                                            matchOnGender = TRUE)
 
 selectSubjectsToIncludeArgs2 <- createSelectSubjectsToIncludeArgs(firstOutcomeOnly = FALSE,
                                                                   washoutPeriod = 180,
                                                                   matchingCriteria = matchingCriteria1)
 
 ccrAnalysis3 <- createCcrAnalysis(analysisId = 3,
-                                description = "Nested case-time-control, matching on age and gender",
-                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
-                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs2,
-                                getExposureStatusArgs = getExposureStatusArgs1)
+                                  description = "Nested case-time-control, matching on age and gender",
+                                  getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                  selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs2,
+                                  getExposureStatusArgs = getExposureStatusArgs1)
 
 matchingCriteria2 <- createMatchingCriteria(matchOnAge = TRUE,
                                             ageCaliper = 2,
@@ -144,10 +144,10 @@ selectSubjectsToIncludeArgs3 <- createSelectSubjectsToIncludeArgs(firstOutcomeOn
                                                                   matchingCriteria = matchingCriteria2)
 
 ccrAnalysis4 <- createCcrAnalysis(analysisId = 4,
-                                description = "Nested case-time-control, matching on age, gender, and visit",
-                                getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
-                                selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs3,
-                                getExposureStatusArgs = getExposureStatusArgs1)
+                                  description = "Nested case-time-control, matching on age, gender, and visit",
+                                  getDbCaseCrossoverDataArgs = getDbCaseCrossoverDataArgs2,
+                                  selectSubjectsToIncludeArgs = selectSubjectsToIncludeArgs3,
+                                  getExposureStatusArgs = getExposureStatusArgs1)
 
 ccrAnalysisList <- list(ccrAnalysis1, ccrAnalysis2, ccrAnalysis3, ccrAnalysis4)
 
@@ -159,27 +159,27 @@ saveCcrAnalysisList(ccrAnalysisList, "s:/temp/vignetteCaseCrossover2/ccrAnalysis
 # ccrAnalysisList <- loadCcrAnalysisList('s:/temp/vignetteCaseCrossover2/ccrAnalysisList.txt')
 
 result <- runCcrAnalyses(connectionDetails = connectionDetails,
-                        cdmDatabaseSchema = cdmDatabaseSchema,
-                        oracleTempSchema = cdmDatabaseSchema,
-                        exposureDatabaseSchema = cdmDatabaseSchema,
-                        exposureTable = "drug_era",
-                        outcomeDatabaseSchema = cohortDatabaseSchema,
-                        outcomeTable = cohortTable,
-                        nestingCohortDatabaseSchema = cohortDatabaseSchema,
-                        nestingCohortTable = cohortTable,
-                        outputFolder = outputFolder,
-                        exposureOutcomeNestingCohortList = exposureOutcomeNcList,
-                        ccrAnalysisList = ccrAnalysisList,
-                        getDbCaseCrossoverDataThreads = 1,
-                        selectSubjectsToIncludeThreads = 4,
-                        getExposureStatusThreads = 3,
-                        fitCaseCrossoverModelThreads = 4)
+                         cdmDatabaseSchema = cdmDatabaseSchema,
+                         oracleTempSchema = cdmDatabaseSchema,
+                         exposureDatabaseSchema = cdmDatabaseSchema,
+                         exposureTable = "drug_era",
+                         outcomeDatabaseSchema = cohortDatabaseSchema,
+                         outcomeTable = cohortTable,
+                         nestingCohortDatabaseSchema = cohortDatabaseSchema,
+                         nestingCohortTable = cohortTable,
+                         outputFolder = outputFolder,
+                         exposureOutcomeNestingCohortList = exposureOutcomeNcList,
+                         ccrAnalysisList = ccrAnalysisList,
+                         getDbCaseCrossoverDataThreads = 1,
+                         selectSubjectsToIncludeThreads = 4,
+                         getExposureStatusThreads = 3,
+                         fitCaseCrossoverModelThreads = 4)
 
 # result <- readRDS('s:/temp/sccsVignette2/outcomeModelReference.rds')
 
-analysisSum <- summarizeCcrAnalyses(result)
+analysisSum <- summarizeCcrAnalyses(result, outputFolder)
 saveRDS(analysisSum, "s:/temp/vignetteCaseCrossover2/analysisSummary.rds")
 
-x <- readRDS(result$modelFile[1])
-summary(x)
+x <- readRDS(file.path(outputFolder, result$modelFile[1]))
+x
 

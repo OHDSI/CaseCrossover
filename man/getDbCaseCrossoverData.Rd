@@ -117,7 +117,7 @@ outcome cases will be sampled to this size. \code{maxCasesPerOutcome = 0}
 indicates no maximum size.}
 }
 \value{
-Returns an object of type \code{caseCrossoverData}, containing information on the cases, the
+Returns an object of type \code{CaseCrossoverData}, containing information on the cases, the
 nesting cohort, exposures, and optionally visits. Information about multiple outcomes can be
 captured at once for efficiency reasons. The generic \code{summary()} function has been implemented
 for this object.
