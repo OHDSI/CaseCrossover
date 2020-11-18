@@ -4,7 +4,7 @@ CaseCrossover
 [![Build Status](https://travis-ci.org/OHDSI/CaseCrossover.svg?branch=master)](https://travis-ci.org/OHDSI/CaseCrossover)
 [![codecov.io](https://codecov.io/github/OHDSI/CaseCrossover/coverage.svg?branch=master)](https://codecov.io/github/OHDSI/CaseCrossover?branch=master)
 
-CaseControl is part of [HADES](https://ohdsi.github.io/Hades).
+**This package is no longer being supported** It is provided as is.
 
 Introduction
 ============
@@ -66,4 +66,4 @@ CaseCrossover is being developed in R Studio.
 
 ### Development status
 
-Beta
+This package is no longer being supported. It is provided as is.
